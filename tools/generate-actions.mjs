@@ -479,7 +479,7 @@ action({
     f("testimonials_list", "form_id", { pd: "testimonialFormIds" }),
     f("testimonials_list", "received_from", { expr: "utils.toDate(this.receivedFrom)", description: "The first day received, as `YYYY-MM-DD`." }),
     f("testimonials_list", "received_to", { expr: "utils.toDate(this.receivedTo)", description: "The last day received, as `YYYY-MM-DD`." }),
-    f("testimonials_list", "sort", { options: ["received_desc", "received_asc", "added_desc", "added_asc", "rating_desc", "rating_asc", "person_asc", "relevance"] }),
+    f("testimonials_list", "sort", { options: ["received_desc", "received_asc", "added_desc", "added_asc", "rating_desc", "rating_asc", "person_asc", "relevance"], description: "The order of the results, e.g. `received_desc` for the newest received first. `relevance` needs a **Search**." }),
   ],
   paramsCode: "rating: this.minRating ? [\"1\", \"2\", \"3\", \"4\", \"5\"].filter((rating) => Number(rating) >= Number(this.minRating)) : undefined",
   summary: "`Found ${items.length} testimonial${items.length === 1 ? \"\" : \"s\"}`",
