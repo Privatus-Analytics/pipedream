@@ -1,0 +1,13 @@
+{
+  "name": "privatus-analytics-pipedream-components",
+  "private": true,
+  "type": "module",
+  "description": "Development files for the Privatus Analytics components for Pipedream. The pull request contains only components/privatus_analytics.",
+  "scripts": {
+    "test": "node --test \"tests/*.test.mjs\"",
+    "generate": "node tools/generate-actions.mjs && node tools/generate-sources.mjs"
+  },
+  "devDependencies": {
+    "@pipedream/platform": "3.3.1"
+  }
+}

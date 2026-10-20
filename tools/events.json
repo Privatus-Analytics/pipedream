@@ -1,0 +1,195 @@
+[
+ {
+  "value": "alert.resolved",
+  "name": "Alert Resolved",
+  "description": "Triggers when an alert rule recovers",
+  "site": true,
+  "filters": [
+   "alertId"
+  ]
+ },
+ {
+  "value": "alert.triggered",
+  "name": "Alert Triggered",
+  "description": "Triggers when an alert rule fires: a traffic threshold, a spike or drop, a goal, a new referrer, no data, usage and more",
+  "site": true,
+  "filters": [
+   "alertId"
+  ]
+ },
+ {
+  "value": "import.completed",
+  "name": "Analytics Import Completed",
+  "description": "Triggers when an import of analytics history (from Google Analytics or a file) finishes",
+  "site": true,
+  "filters": []
+ },
+ {
+  "value": "import.failed",
+  "name": "Analytics Import Failed",
+  "description": "Triggers when an import of analytics history fails",
+  "site": true,
+  "filters": []
+ },
+ {
+  "value": "experiment.ended",
+  "name": "Experiment Ended",
+  "description": "Triggers when an A/B or split URL experiment ends, with or without a winner, with the results of every variant",
+  "site": true,
+  "filters": []
+ },
+ {
+  "value": "export.ready",
+  "name": "Export Ready",
+  "description": "Triggers when an export has finished and its file is ready to download",
+  "site": true,
+  "filters": [],
+  "idKey": "export_id"
+ },
+ {
+  "value": "goal.completed_threshold",
+  "name": "Goal Alert Triggered",
+  "description": "Triggers when a goal alert rule fires (a goal reached, or fell under, its number of completions)",
+  "site": true,
+  "filters": [
+   "alertId"
+  ]
+ },
+ {
+  "value": "member.added",
+  "name": "New Member",
+  "description": "Triggers when someone joins the workspace (an accepted invitation, single sign-on or SCIM)",
+  "site": false,
+  "filters": []
+ },
+ {
+  "value": "testimonial_sync.new_found",
+  "name": "New Reviews Found by Sync",
+  "description": "Triggers when an automatic sync of a review platform stores new reviews",
+  "site": true,
+  "filters": []
+ },
+ {
+  "value": "site.created",
+  "name": "New Site",
+  "description": "Triggers when a site is added to the workspace",
+  "site": false,
+  "filters": []
+ },
+ {
+  "value": "testimonial.received",
+  "name": "New Testimonial",
+  "description": "Triggers when a testimonial arrives through a form, a request, the API, the browser extension or by hand",
+  "site": true,
+  "filters": [
+   "minRating"
+  ]
+ },
+ {
+  "value": "site_audit.completed",
+  "name": "Site Audit Completed",
+  "description": "Triggers when an SEO site audit finishes, with its score and the issues found and fixed",
+  "site": true,
+  "filters": []
+ },
+ {
+  "value": "site.deleted",
+  "name": "Site Deleted",
+  "description": "Triggers when a site is deleted from the workspace",
+  "site": false,
+  "filters": []
+ },
+ {
+  "value": "testimonial.approved",
+  "name": "Testimonial Approved",
+  "description": "Triggers when a testimonial is approved, so it can be shown on walls and widgets",
+  "site": true,
+  "filters": [
+   "minRating"
+  ]
+ },
+ {
+  "value": "testimonial.deleted",
+  "name": "Testimonial Deleted",
+  "description": "Triggers when a testimonial is deleted permanently, by a person or when the trash is emptied",
+  "site": true,
+  "filters": []
+ },
+ {
+  "value": "testimonial_form.submitted",
+  "name": "Testimonial Form Submitted",
+  "description": "Triggers when someone completes a testimonial form, whether it became a testimonial or private feedback. Never includes their email address.",
+  "site": true,
+  "filters": [
+   "formId",
+   "minRating"
+  ]
+ },
+ {
+  "value": "testimonial_import.finished",
+  "name": "Testimonial Import Finished",
+  "description": "Triggers when an import of testimonials or reviews finishes reading, or fails",
+  "site": true,
+  "filters": []
+ },
+ {
+  "value": "testimonial.trashed",
+  "name": "Testimonial Moved to Trash",
+  "description": "Triggers when a testimonial is moved to the trash",
+  "site": true,
+  "filters": []
+ },
+ {
+  "value": "testimonial.rejected",
+  "name": "Testimonial Rejected",
+  "description": "Triggers when a testimonial is rejected",
+  "site": true,
+  "filters": []
+ },
+ {
+  "value": "testimonial_request.completed",
+  "name": "Testimonial Request Finished",
+  "description": "Triggers when a testimonial request finishes: every person replied, opted out or got every email",
+  "site": true,
+  "filters": [
+   "requestId"
+  ]
+ },
+ {
+  "value": "testimonial_request.sent",
+  "name": "Testimonial Request Sent",
+  "description": "Triggers when the first emails of a testimonial request go out",
+  "site": true,
+  "filters": [
+   "requestId"
+  ]
+ },
+ {
+  "value": "testimonial.restored",
+  "name": "Testimonial Restored",
+  "description": "Triggers when a testimonial is restored from the trash",
+  "site": true,
+  "filters": []
+ },
+ {
+  "value": "uptime.down",
+  "name": "Uptime Check Down",
+  "description": "Triggers when an uptime check starts failing",
+  "site": true,
+  "filters": []
+ },
+ {
+  "value": "uptime.up",
+  "name": "Uptime Check Recovered",
+  "description": "Triggers when a failing uptime check is back up",
+  "site": true,
+  "filters": []
+ },
+ {
+  "value": "usage.threshold",
+  "name": "Usage Threshold Reached",
+  "description": "Triggers when a usage alert fires because the workspace's monthly events passed a share of the plan's allowance",
+  "site": false,
+  "filters": []
+ }
+]

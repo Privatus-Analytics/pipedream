@@ -1,0 +1,3411 @@
+{
+ "workspaces_list": {
+  "method": "GET",
+  "path": "/workspaces.json",
+  "summary": "List your workspaces",
+  "inputs": [
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "account_get": {
+  "method": "GET",
+  "path": "/account.json",
+  "summary": "Get your profile and preferences",
+  "inputs": []
+ },
+ "webhooks_create": {
+  "method": "POST",
+  "path": "/workspaces/{workspace_id}/webhooks.json",
+  "summary": "Add a webhook endpoint",
+  "inputs": [
+   {
+    "name": "workspace_id",
+    "type": "string",
+    "required": true,
+    "description": "Workspace id, e.g. ws_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "url",
+    "type": "string",
+    "required": true,
+    "description": "Public https endpoint that receives the JSON POSTs, up to 2000 characters. Private and internal addresses are refused",
+    "in": "body"
+   },
+   {
+    "name": "events",
+    "type": "array",
+    "required": true,
+    "description": "Event names to send, at least one: alert.triggered, alert.resolved, goal.completed_threshold, uptime.down, uptime.up, export.ready, import.completed, import.failed, site.created, site.deleted, member.added, usage.threshold, site_audit.completed",
+    "items": "string",
+    "itemsEnum": [
+     "alert.triggered",
+     "alert.resolved",
+     "goal.completed_threshold",
+     "uptime.down",
+     "uptime.up",
+     "export.ready",
+     "import.completed",
+     "import.failed",
+     "site.created",
+     "site.deleted",
+     "member.added",
+     "usage.threshold",
+     "site_audit.completed",
+     "experiment.ended",
+     "testimonial.received",
+     "testimonial.approved",
+     "testimonial.rejected",
+     "testimonial.trashed",
+     "testimonial.restored",
+     "testimonial.deleted",
+     "testimonial_import.finished",
+     "testimonial_sync.new_found",
+     "testimonial_form.submitted",
+     "testimonial_request.sent",
+     "testimonial_request.completed"
+    ],
+    "in": "body"
+   },
+   {
+    "name": "enabled",
+    "type": "boolean",
+    "description": "Send deliveries (default true)",
+    "default": true,
+    "in": "body"
+   }
+  ]
+ },
+ "webhooks_delete": {
+  "method": "DELETE",
+  "path": "/workspaces/{workspace_id}/webhooks/{id}.json",
+  "summary": "Delete a webhook",
+  "inputs": [
+   {
+    "name": "workspace_id",
+    "type": "string",
+    "required": true,
+    "description": "Workspace id, e.g. ws_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by webhooks_list",
+    "in": "path"
+   }
+  ]
+ },
+ "sites_list": {
+  "method": "GET",
+  "path": "/workspaces/{workspace_id}/sites.json",
+  "summary": "List sites in a workspace",
+  "inputs": [
+   {
+    "name": "workspace_id",
+    "type": "string",
+    "required": true,
+    "description": "Workspace id, e.g. ws_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "query",
+    "type": "string",
+    "description": "Partial, case-insensitive match on domain or name.",
+    "in": "query"
+   },
+   {
+    "name": "label",
+    "type": "string",
+    "description": "Only sites that carry this exact label.",
+    "in": "query"
+   },
+   {
+    "name": "sort",
+    "type": "string",
+    "description": "position (your saved order, default), name (A to Z) or visitors (unique visitors in the last 30 days, most first). Starred sites always come first.",
+    "enum": [
+     "position",
+     "name",
+     "visitors"
+    ],
+    "default": "position",
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "sites_get": {
+  "method": "GET",
+  "path": "/sites/{id}.json",
+  "summary": "Get a site and all its settings",
+  "inputs": [
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by sites_list",
+    "in": "path"
+   }
+  ]
+ },
+ "sites_create": {
+  "method": "POST",
+  "path": "/workspaces/{workspace_id}/sites.json",
+  "summary": "Add a site",
+  "inputs": [
+   {
+    "name": "workspace_id",
+    "type": "string",
+    "required": true,
+    "description": "Workspace id, e.g. ws_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "domain",
+    "type": "string",
+    "required": true,
+    "description": "Primary domain such as example.com. A URL or www prefix is reduced to the hostname.",
+    "in": "body"
+   },
+   {
+    "name": "name",
+    "type": "string",
+    "description": "Display name. Defaults to the normalized domain.",
+    "in": "body"
+   },
+   {
+    "name": "timezone",
+    "type": "string",
+    "description": "IANA timezone name such as Europe/Berlin or America/New_York. Defaults to the workspace timezone.",
+    "in": "body"
+   },
+   {
+    "name": "currency",
+    "type": "string",
+    "description": "3-letter ISO 4217 code such as USD or EUR used for revenue. Defaults to the workspace currency.",
+    "in": "body"
+   }
+  ]
+ },
+ "stats_aggregate": {
+  "method": "GET",
+  "path": "/sites/{site_id}/stats/aggregate.json",
+  "summary": "Headline metrics for a period (with comparison)",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "period",
+    "type": "string",
+    "description": "Date range preset, in the site's timezone: today, yesterday, 24h (last 24 hours), 7d, 14d, 28d, 30d, 90d (the last N days), mtd (month to date), last_month, qtd (quarter to date), last_quarter, ytd (year to date), 12mo, last_year, all (all time), or custom (then the range is from to to)",
+    "enum": [
+     "today",
+     "yesterday",
+     "24h",
+     "7d",
+     "14d",
+     "28d",
+     "30d",
+     "90d",
+     "mtd",
+     "last_month",
+     "qtd",
+     "last_quarter",
+     "ytd",
+     "12mo",
+     "last_year",
+     "all",
+     "custom"
+    ],
+    "default": "7d",
+    "in": "query"
+   },
+   {
+    "name": "from",
+    "type": "string",
+    "description": "First day of the range as YYYY-MM-DD, in the site's timezone. Only used when period is custom. Without it the range starts 29 days before to",
+    "in": "query"
+   },
+   {
+    "name": "to",
+    "type": "string",
+    "description": "Last day of the range as YYYY-MM-DD, inclusive. Only used when period is custom. Without it the range ends today",
+    "in": "query"
+   },
+   {
+    "name": "compare",
+    "type": "string",
+    "description": "Also compute a comparison range: previous_period (the same length right before), previous_year (the same dates a year earlier), custom (needs both compare_from and compare_to) or none. Adds the comparison values and the percent change to the result",
+    "enum": [
+     "none",
+     "previous_period",
+     "previous_year",
+     "custom"
+    ],
+    "default": "none",
+    "in": "query"
+   },
+   {
+    "name": "compare_from",
+    "type": "string",
+    "description": "First day of the comparison range as YYYY-MM-DD. Only used when compare is custom",
+    "in": "query"
+   },
+   {
+    "name": "compare_to",
+    "type": "string",
+    "description": "Last day of the comparison range as YYYY-MM-DD, inclusive. Only used when compare is custom",
+    "in": "query"
+   },
+   {
+    "name": "match_weekday",
+    "type": "boolean",
+    "description": "Shift the comparison range so days of the week line up (Monday against Monday)",
+    "default": false,
+    "in": "query"
+   },
+   {
+    "name": "filters",
+    "type": "array",
+    "description": "Filters that must all match: a list of [dimension, operator, value] conditions, e.g. [[\"country\",\"is\",\"US\"],[\"page\",\"starts_with\",\"/blog\"]]. Dimensions: channel, referrer, referrer_url, utm_source, utm_medium, utm_campaign, utm_content, utm_term, ref, hostname, country, language, device, browser, browser_version, os, os_version, screen, entry_page, exit_page, interaction, bot_score, page, event, goal, prop:<key>. Use the exact singular names (country, not countries). Values are as stored: country is a two-letter code such as US, channel is a name such as organic_search, a page is a path such as /pricing. Operators taking one value: is, is_not, contains, not_contains, starts_with, wildcard and not_wildcard (the value uses * as a wildcard, e.g. /blog/*), regex and not_regex (a Postgres regular expression of up to 200 characters), gt and lt (a number). any_of and none_of take a list: [\"country\",\"any_of\",[\"US\",\"DE\"]]. between takes two numbers: [\"prop:price\",\"between\",[10,50]]. For OR, wrap conditions in an object: {\"any\":[[\"channel\",\"is\",\"email\"],[\"utm_medium\",\"is\",\"email\"]]}. Up to 20 conditions.",
+    "items": "string",
+    "default": [],
+    "in": "query"
+   },
+   {
+    "name": "segment_id",
+    "type": "string",
+    "description": "Apply a saved segment by its id (seg_…, from segments_list). Its filters are added to filters",
+    "in": "query"
+   },
+   {
+    "name": "include_imported",
+    "type": "boolean",
+    "description": "Add imported historical data (dates before the first native event, ignored when filters or a segment are applied)",
+    "default": false,
+    "in": "query"
+   }
+  ]
+ },
+ "stats_breakdown": {
+  "method": "GET",
+  "path": "/sites/{site_id}/breakdown/{dimension}.json",
+  "summary": "Top values of a dimension (pages, sources, countries…)",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "dimension",
+    "type": "string",
+    "required": true,
+    "description": "What to group by: channel (traffic channel: paid_search, paid_social, paid_other, email, ai_assistants, organic_search, organic_social, internal, referral, direct, or a custom channel name), referrer (referring hostname such as news.ycombinator.com), referrer_url (referrer hostname plus path), utm_source, utm_medium, utm_campaign, utm_content, utm_term, ref (the ref, via or source query parameter), hostname (the site hostname the visit was on), country (two-letter ISO code such as US), language (browser language such as en-US), device (desktop, mobile or tablet), browser (family such as Chrome), browser_version (family and major version such as Chrome 126), os (such as Windows, Mac, iOS or Android), os_version (such as iOS 18), screen (width bucket: xs under 414px, sm under 768, md under 1024, lg under 1440, xl above), page (a page path such as /pricing, no domain or query string), entry_page (first page of a visit), exit_page (last page of a visit), event (custom event name such as Signup), goal (one row per goal), prop:<key> (a custom event property such as prop:plan, keys come from event_properties_list), interaction (seen, none or unknown: whether a real user input was seen during the visit), bot_score (likely_human, unsure, likely_bot or not_scored: how likely the visit came from a bot. Visits are scored on plans with Advanced Bot Detection, from the day the plan starts). Each is also a valid filter dimension. Use the exact singular name (country, not countries)",
+    "in": "path"
+   },
+   {
+    "name": "period",
+    "type": "string",
+    "description": "Date range preset, in the site's timezone: today, yesterday, 24h (last 24 hours), 7d, 14d, 28d, 30d, 90d (the last N days), mtd (month to date), last_month, qtd (quarter to date), last_quarter, ytd (year to date), 12mo, last_year, all (all time), or custom (then the range is from to to)",
+    "enum": [
+     "today",
+     "yesterday",
+     "24h",
+     "7d",
+     "14d",
+     "28d",
+     "30d",
+     "90d",
+     "mtd",
+     "last_month",
+     "qtd",
+     "last_quarter",
+     "ytd",
+     "12mo",
+     "last_year",
+     "all",
+     "custom"
+    ],
+    "default": "7d",
+    "in": "query"
+   },
+   {
+    "name": "from",
+    "type": "string",
+    "description": "First day of the range as YYYY-MM-DD, in the site's timezone. Only used when period is custom. Without it the range starts 29 days before to",
+    "in": "query"
+   },
+   {
+    "name": "to",
+    "type": "string",
+    "description": "Last day of the range as YYYY-MM-DD, inclusive. Only used when period is custom. Without it the range ends today",
+    "in": "query"
+   },
+   {
+    "name": "compare",
+    "type": "string",
+    "description": "Also compute a comparison range: previous_period (the same length right before), previous_year (the same dates a year earlier), custom (needs both compare_from and compare_to) or none. Adds the comparison values and the percent change to the result",
+    "enum": [
+     "none",
+     "previous_period",
+     "previous_year",
+     "custom"
+    ],
+    "default": "none",
+    "in": "query"
+   },
+   {
+    "name": "compare_from",
+    "type": "string",
+    "description": "First day of the comparison range as YYYY-MM-DD. Only used when compare is custom",
+    "in": "query"
+   },
+   {
+    "name": "compare_to",
+    "type": "string",
+    "description": "Last day of the comparison range as YYYY-MM-DD, inclusive. Only used when compare is custom",
+    "in": "query"
+   },
+   {
+    "name": "match_weekday",
+    "type": "boolean",
+    "description": "Shift the comparison range so days of the week line up (Monday against Monday)",
+    "default": false,
+    "in": "query"
+   },
+   {
+    "name": "filters",
+    "type": "array",
+    "description": "Filters that must all match: a list of [dimension, operator, value] conditions, e.g. [[\"country\",\"is\",\"US\"],[\"page\",\"starts_with\",\"/blog\"]]. Dimensions: channel, referrer, referrer_url, utm_source, utm_medium, utm_campaign, utm_content, utm_term, ref, hostname, country, language, device, browser, browser_version, os, os_version, screen, entry_page, exit_page, interaction, bot_score, page, event, goal, prop:<key>. Use the exact singular names (country, not countries). Values are as stored: country is a two-letter code such as US, channel is a name such as organic_search, a page is a path such as /pricing. Operators taking one value: is, is_not, contains, not_contains, starts_with, wildcard and not_wildcard (the value uses * as a wildcard, e.g. /blog/*), regex and not_regex (a Postgres regular expression of up to 200 characters), gt and lt (a number). any_of and none_of take a list: [\"country\",\"any_of\",[\"US\",\"DE\"]]. between takes two numbers: [\"prop:price\",\"between\",[10,50]]. For OR, wrap conditions in an object: {\"any\":[[\"channel\",\"is\",\"email\"],[\"utm_medium\",\"is\",\"email\"]]}. Up to 20 conditions.",
+    "items": "string",
+    "default": [],
+    "in": "query"
+   },
+   {
+    "name": "segment_id",
+    "type": "string",
+    "description": "Apply a saved segment by its id (seg_…, from segments_list). Its filters are added to filters",
+    "in": "query"
+   },
+   {
+    "name": "include_imported",
+    "type": "boolean",
+    "description": "Add imported historical data (dates before the first native event, ignored when filters or a segment are applied)",
+    "default": false,
+    "in": "query"
+   },
+   {
+    "name": "limit",
+    "type": "integer",
+    "description": "Rows per page, 1 to 1000 (default 10)",
+    "default": 10,
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "description": "Page number, from 1. has_more in the result says whether another page exists",
+    "default": 1,
+    "in": "query"
+   },
+   {
+    "name": "sort",
+    "type": "string",
+    "description": "Metric to sort by, highest first. Default is the main count of the dimension: visitors for visit dimensions, pageviews for page, completions for event, goal and prop:<key>",
+    "enum": [
+     "visitors",
+     "visits",
+     "pageviews",
+     "revenue"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "search",
+    "type": "string",
+    "description": "Only rows whose value contains this text, in any letter case. It searches every value, not just the top rows. Not for goal",
+    "in": "query"
+   }
+  ]
+ },
+ "stats_timeseries": {
+  "method": "GET",
+  "path": "/sites/{site_id}/stats/timeseries.json",
+  "summary": "Metrics per time bucket for charts",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "period",
+    "type": "string",
+    "description": "Date range preset, in the site's timezone: today, yesterday, 24h (last 24 hours), 7d, 14d, 28d, 30d, 90d (the last N days), mtd (month to date), last_month, qtd (quarter to date), last_quarter, ytd (year to date), 12mo, last_year, all (all time), or custom (then the range is from to to)",
+    "enum": [
+     "today",
+     "yesterday",
+     "24h",
+     "7d",
+     "14d",
+     "28d",
+     "30d",
+     "90d",
+     "mtd",
+     "last_month",
+     "qtd",
+     "last_quarter",
+     "ytd",
+     "12mo",
+     "last_year",
+     "all",
+     "custom"
+    ],
+    "default": "7d",
+    "in": "query"
+   },
+   {
+    "name": "from",
+    "type": "string",
+    "description": "First day of the range as YYYY-MM-DD, in the site's timezone. Only used when period is custom. Without it the range starts 29 days before to",
+    "in": "query"
+   },
+   {
+    "name": "to",
+    "type": "string",
+    "description": "Last day of the range as YYYY-MM-DD, inclusive. Only used when period is custom. Without it the range ends today",
+    "in": "query"
+   },
+   {
+    "name": "compare",
+    "type": "string",
+    "description": "Also compute a comparison range: previous_period (the same length right before), previous_year (the same dates a year earlier), custom (needs both compare_from and compare_to) or none. Adds the comparison values and the percent change to the result",
+    "enum": [
+     "none",
+     "previous_period",
+     "previous_year",
+     "custom"
+    ],
+    "default": "none",
+    "in": "query"
+   },
+   {
+    "name": "compare_from",
+    "type": "string",
+    "description": "First day of the comparison range as YYYY-MM-DD. Only used when compare is custom",
+    "in": "query"
+   },
+   {
+    "name": "compare_to",
+    "type": "string",
+    "description": "Last day of the comparison range as YYYY-MM-DD, inclusive. Only used when compare is custom",
+    "in": "query"
+   },
+   {
+    "name": "match_weekday",
+    "type": "boolean",
+    "description": "Shift the comparison range so days of the week line up (Monday against Monday)",
+    "default": false,
+    "in": "query"
+   },
+   {
+    "name": "filters",
+    "type": "array",
+    "description": "Filters that must all match: a list of [dimension, operator, value] conditions, e.g. [[\"country\",\"is\",\"US\"],[\"page\",\"starts_with\",\"/blog\"]]. Dimensions: channel, referrer, referrer_url, utm_source, utm_medium, utm_campaign, utm_content, utm_term, ref, hostname, country, language, device, browser, browser_version, os, os_version, screen, entry_page, exit_page, interaction, bot_score, page, event, goal, prop:<key>. Use the exact singular names (country, not countries). Values are as stored: country is a two-letter code such as US, channel is a name such as organic_search, a page is a path such as /pricing. Operators taking one value: is, is_not, contains, not_contains, starts_with, wildcard and not_wildcard (the value uses * as a wildcard, e.g. /blog/*), regex and not_regex (a Postgres regular expression of up to 200 characters), gt and lt (a number). any_of and none_of take a list: [\"country\",\"any_of\",[\"US\",\"DE\"]]. between takes two numbers: [\"prop:price\",\"between\",[10,50]]. For OR, wrap conditions in an object: {\"any\":[[\"channel\",\"is\",\"email\"],[\"utm_medium\",\"is\",\"email\"]]}. Up to 20 conditions.",
+    "items": "string",
+    "default": [],
+    "in": "query"
+   },
+   {
+    "name": "segment_id",
+    "type": "string",
+    "description": "Apply a saved segment by its id (seg_…, from segments_list). Its filters are added to filters",
+    "in": "query"
+   },
+   {
+    "name": "include_imported",
+    "type": "boolean",
+    "description": "Add imported historical data (dates before the first native event, ignored when filters or a segment are applied)",
+    "default": false,
+    "in": "query"
+   },
+   {
+    "name": "interval",
+    "type": "string",
+    "description": "Bucket size: minute, hour, day, week, month, quarter or year. auto picks one that suits the range",
+    "enum": [
+     "auto",
+     "minute",
+     "hour",
+     "day",
+     "week",
+     "month",
+     "quarter",
+     "year"
+    ],
+    "default": "auto",
+    "in": "query"
+   }
+  ]
+ },
+ "live_get": {
+  "method": "GET",
+  "path": "/sites/{site_id}/live.json",
+  "summary": "Live visitors, activity stream and what is popular right now (last 30 minutes)",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "feed",
+    "type": "string",
+    "description": "Which hits to put in the activity feed: all (default), pageviews or events",
+    "enum": [
+     "all",
+     "pageviews",
+     "events"
+    ],
+    "default": "all",
+    "in": "query"
+   },
+   {
+    "name": "limit",
+    "type": "integer",
+    "description": "Feed entries to return, 1 to 100. Default 50",
+    "default": 50,
+    "in": "query"
+   },
+   {
+    "name": "filters",
+    "type": "array",
+    "description": "Filters that must all match, in the same format as the stats tools: a list of [dimension, operator, value] conditions, e.g. [[\"country\",\"is\",\"US\"],[\"page\",\"starts_with\",\"/blog\"]]. Every number and the feed then cover only the matching hits. Empty means no filter",
+    "items": "string",
+    "default": [],
+    "in": "query"
+   }
+  ]
+ },
+ "goals_list": {
+  "method": "GET",
+  "path": "/sites/{site_id}/goals.json",
+  "summary": "List goals with completions, conversions, rate and value for a period",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "period",
+    "type": "string",
+    "description": "Date range preset, in the site's timezone: today, yesterday, 24h (last 24 hours), 7d, 14d, 28d, 30d, 90d (the last N days), mtd (month to date), last_month, qtd (quarter to date), last_quarter, ytd (year to date), 12mo, last_year, all (all time), or custom (then the range is from to to)",
+    "enum": [
+     "today",
+     "yesterday",
+     "24h",
+     "7d",
+     "14d",
+     "28d",
+     "30d",
+     "90d",
+     "mtd",
+     "last_month",
+     "qtd",
+     "last_quarter",
+     "ytd",
+     "12mo",
+     "last_year",
+     "all",
+     "custom"
+    ],
+    "default": "7d",
+    "in": "query"
+   },
+   {
+    "name": "from",
+    "type": "string",
+    "description": "First day of the range as YYYY-MM-DD, in the site's timezone. Only used when period is custom. Without it the range starts 29 days before to",
+    "in": "query"
+   },
+   {
+    "name": "to",
+    "type": "string",
+    "description": "Last day of the range as YYYY-MM-DD, inclusive. Only used when period is custom. Without it the range ends today",
+    "in": "query"
+   },
+   {
+    "name": "compare",
+    "type": "string",
+    "description": "Also compute a comparison range: previous_period (the same length right before), previous_year (the same dates a year earlier), custom (needs both compare_from and compare_to) or none. Adds the comparison values and the percent change to the result",
+    "enum": [
+     "none",
+     "previous_period",
+     "previous_year",
+     "custom"
+    ],
+    "default": "none",
+    "in": "query"
+   },
+   {
+    "name": "compare_from",
+    "type": "string",
+    "description": "First day of the comparison range as YYYY-MM-DD. Only used when compare is custom",
+    "in": "query"
+   },
+   {
+    "name": "compare_to",
+    "type": "string",
+    "description": "Last day of the comparison range as YYYY-MM-DD, inclusive. Only used when compare is custom",
+    "in": "query"
+   },
+   {
+    "name": "match_weekday",
+    "type": "boolean",
+    "description": "Shift the comparison range so days of the week line up (Monday against Monday)",
+    "default": false,
+    "in": "query"
+   },
+   {
+    "name": "filters",
+    "type": "array",
+    "description": "Filters that must all match: a list of [dimension, operator, value] conditions, e.g. [[\"country\",\"is\",\"US\"],[\"page\",\"starts_with\",\"/blog\"]]. Dimensions: channel, referrer, referrer_url, utm_source, utm_medium, utm_campaign, utm_content, utm_term, ref, hostname, country, language, device, browser, browser_version, os, os_version, screen, entry_page, exit_page, interaction, bot_score, page, event, goal, prop:<key>. Use the exact singular names (country, not countries). Values are as stored: country is a two-letter code such as US, channel is a name such as organic_search, a page is a path such as /pricing. Operators taking one value: is, is_not, contains, not_contains, starts_with, wildcard and not_wildcard (the value uses * as a wildcard, e.g. /blog/*), regex and not_regex (a Postgres regular expression of up to 200 characters), gt and lt (a number). any_of and none_of take a list: [\"country\",\"any_of\",[\"US\",\"DE\"]]. between takes two numbers: [\"prop:price\",\"between\",[10,50]]. For OR, wrap conditions in an object: {\"any\":[[\"channel\",\"is\",\"email\"],[\"utm_medium\",\"is\",\"email\"]]}. Up to 20 conditions.",
+    "items": "string",
+    "default": [],
+    "in": "query"
+   },
+   {
+    "name": "segment_id",
+    "type": "string",
+    "description": "Apply a saved segment by its id (seg_…, from segments_list). Its filters are added to filters",
+    "in": "query"
+   },
+   {
+    "name": "include_imported",
+    "type": "boolean",
+    "description": "Add imported historical data (dates before the first native event, ignored when filters or a segment are applied)",
+    "default": false,
+    "in": "query"
+   },
+   {
+    "name": "status",
+    "type": "string",
+    "description": "active (default), archived or all",
+    "enum": [
+     "active",
+     "archived",
+     "all"
+    ],
+    "default": "active",
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "description": "Page number, starting at 1",
+    "default": 1,
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "description": "Goals per page, 1 to 100. Default 25",
+    "default": 25,
+    "in": "query"
+   }
+  ]
+ },
+ "goals_create": {
+  "method": "POST",
+  "path": "/sites/{site_id}/goals.json",
+  "summary": "Create a goal",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "name",
+    "type": "string",
+    "required": true,
+    "description": "Goal name, up to 120 characters, for example Signed up",
+    "in": "body"
+   },
+   {
+    "name": "kind",
+    "type": "string",
+    "required": true,
+    "description": "page (visit a page), event (custom event), engagement (scroll or time on page), outbound (outbound link click) or download (file download)",
+    "enum": [
+     "page",
+     "event",
+     "engagement",
+     "outbound",
+     "download"
+    ],
+    "in": "body"
+   },
+   {
+    "name": "match_type",
+    "type": "string",
+    "description": "How pattern matches the path (page, engagement), link domain (outbound) or file (download): exact, prefix, glob (*) or regex",
+    "enum": [
+     "exact",
+     "prefix",
+     "glob",
+     "regex"
+    ],
+    "default": "exact",
+    "in": "body"
+   },
+   {
+    "name": "pattern",
+    "type": "string",
+    "description": "Required for page, engagement, outbound and download goals. A path for page and engagement (/pricing, /blog/*), a link domain for outbound (stripe.com) or a file name for download (*.pdf). Read according to match_type",
+    "in": "body"
+   },
+   {
+    "name": "hostname",
+    "type": "string",
+    "description": "Page goals only. Count the page only on this hostname, for example docs.example.com. Leave empty for any hostname",
+    "in": "body"
+   },
+   {
+    "name": "event_name",
+    "type": "string",
+    "description": "Required for event goals. The custom event name, for example Signup",
+    "in": "body"
+   },
+   {
+    "name": "conditions",
+    "type": "array",
+    "description": "Event goals only. Property tests that must ALL match: [{\"key\": \"plan\", \"operator\": \"is|is_not|contains|gt|lt\", \"value\": \"pro\"}]. key is a lowercase property key. gt and lt compare numbers",
+    "items": "object",
+    "default": [],
+    "in": "body"
+   },
+   {
+    "name": "scroll_threshold",
+    "type": "integer",
+    "description": "Engagement goals only. Percent of the page scrolled, 1 to 100. The goal is met when this OR time_threshold_seconds is reached",
+    "in": "body"
+   },
+   {
+    "name": "time_threshold_seconds",
+    "type": "integer",
+    "description": "Engagement goals only. Seconds of engaged time on the page. The goal is met when this OR scroll_threshold is reached",
+    "in": "body"
+   },
+   {
+    "name": "value_mode",
+    "type": "string",
+    "description": "none, fixed (fixed_value per conversion) or revenue (the event revenue)",
+    "enum": [
+     "none",
+     "fixed",
+     "revenue"
+    ],
+    "default": "none",
+    "in": "body"
+   },
+   {
+    "name": "fixed_value",
+    "type": "number",
+    "description": "Used when value_mode is fixed. A decimal amount in the site currency (major units, for example 49.5), stored as fixed_value_minor in cents",
+    "in": "body"
+   },
+   {
+    "name": "count_mode",
+    "type": "string",
+    "description": "Value counts once_per_visit or every completion",
+    "enum": [
+     "once_per_visit",
+     "every"
+    ],
+    "default": "once_per_visit",
+    "in": "body"
+   }
+  ]
+ },
+ "notes_list": {
+  "method": "GET",
+  "path": "/sites/{site_id}/notes.json",
+  "summary": "List notes for a site (including workspace-wide notes)",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "from",
+    "type": "string",
+    "description": "Only notes whose date is on or after this day, YYYY-MM-DD.",
+    "in": "query"
+   },
+   {
+    "name": "to",
+    "type": "string",
+    "description": "Only notes whose date is on or before this day, YYYY-MM-DD.",
+    "in": "query"
+   },
+   {
+    "name": "source",
+    "type": "string",
+    "description": "Only notes from this source, one of manual, deploy, system, import or incident.",
+    "enum": [
+     "manual",
+     "deploy",
+     "system",
+     "import",
+     "incident"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "query",
+    "type": "string",
+    "description": "Case-insensitive text search across title, body and link.",
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "notes_create": {
+  "method": "POST",
+  "path": "/sites/{site_id}/notes.json",
+  "summary": "Add a note to a site (use source \"deploy\" for release webhooks)",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "date",
+    "type": "string",
+    "description": "Day of the note, YYYY-MM-DD in the site's timezone. Defaults to today.",
+    "in": "body"
+   },
+   {
+    "name": "end_date",
+    "type": "string",
+    "description": "Last day when the note covers a range, YYYY-MM-DD. Omit for a single day.",
+    "in": "body"
+   },
+   {
+    "name": "title",
+    "type": "string",
+    "description": "Short title shown on the chart. Defaults to a generated text for deploy notes.",
+    "in": "body"
+   },
+   {
+    "name": "body",
+    "type": "string",
+    "description": "Longer details as plain text.",
+    "in": "body"
+   },
+   {
+    "name": "url",
+    "type": "string",
+    "description": "A link such as a pull request or changelog page.",
+    "in": "body"
+   },
+   {
+    "name": "color",
+    "type": "string",
+    "description": "Pin color, one of neutral, brand, blue, amber, red or violet. Defaults to neutral (blue for deploy notes).",
+    "enum": [
+     "neutral",
+     "brand",
+     "blue",
+     "amber",
+     "red",
+     "violet"
+    ],
+    "in": "body"
+   },
+   {
+    "name": "source",
+    "type": "string",
+    "description": "manual (default) for notes written by a person, or deploy for release notifications. system, import and incident are reserved for notes the app writes itself.",
+    "enum": [
+     "manual",
+     "deploy",
+     "system",
+     "import",
+     "incident"
+    ],
+    "default": "manual",
+    "in": "body"
+   },
+   {
+    "name": "version",
+    "type": "string",
+    "description": "Only used when source is deploy and title is empty. A release version or commit, used to build the default title.",
+    "in": "body"
+   }
+  ]
+ },
+ "workspace_notes_create": {
+  "method": "POST",
+  "path": "/workspaces/{workspace_id}/notes.json",
+  "summary": "Add a workspace-wide note (shown on every site)",
+  "inputs": [
+   {
+    "name": "workspace_id",
+    "type": "string",
+    "required": true,
+    "description": "Workspace id, e.g. ws_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "date",
+    "type": "string",
+    "description": "Day of the note, YYYY-MM-DD in the site's timezone. Defaults to today.",
+    "in": "body"
+   },
+   {
+    "name": "end_date",
+    "type": "string",
+    "description": "Last day when the note covers a range, YYYY-MM-DD. Omit for a single day.",
+    "in": "body"
+   },
+   {
+    "name": "title",
+    "type": "string",
+    "description": "Short title shown on the chart. Defaults to a generated text for deploy notes.",
+    "in": "body"
+   },
+   {
+    "name": "body",
+    "type": "string",
+    "description": "Longer details as plain text.",
+    "in": "body"
+   },
+   {
+    "name": "url",
+    "type": "string",
+    "description": "A link such as a pull request or changelog page.",
+    "in": "body"
+   },
+   {
+    "name": "color",
+    "type": "string",
+    "description": "Pin color, one of neutral, brand, blue, amber, red or violet. Defaults to neutral (blue for deploy notes).",
+    "enum": [
+     "neutral",
+     "brand",
+     "blue",
+     "amber",
+     "red",
+     "violet"
+    ],
+    "in": "body"
+   },
+   {
+    "name": "source",
+    "type": "string",
+    "description": "manual (default) for notes written by a person, or deploy for release notifications. system, import and incident are reserved for notes the app writes itself.",
+    "enum": [
+     "manual",
+     "deploy",
+     "system",
+     "import",
+     "incident"
+    ],
+    "default": "manual",
+    "in": "body"
+   },
+   {
+    "name": "version",
+    "type": "string",
+    "description": "Only used when source is deploy and title is empty. A release version or commit, used to build the default title.",
+    "in": "body"
+   }
+  ]
+ },
+ "segments_list": {
+  "method": "GET",
+  "path": "/sites/{site_id}/segments.json",
+  "summary": "List segments you can use on a site",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "alerts_list": {
+  "method": "GET",
+  "path": "/workspaces/{workspace_id}/alerts.json",
+  "summary": "List alerts",
+  "inputs": [
+   {
+    "name": "workspace_id",
+    "type": "string",
+    "required": true,
+    "description": "Workspace id, e.g. ws_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "site_id",
+    "type": "string",
+    "description": "Only alerts for this site (pa_..., from sites_list)",
+    "in": "query"
+   },
+   {
+    "name": "state",
+    "type": "string",
+    "description": "Only alerts in this state: ok or triggered (an incident is open)",
+    "enum": [
+     "ok",
+     "triggered"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "kind",
+    "type": "string",
+    "description": "Only this kind: threshold, anomaly, goal, new_referrer, no_data, usage, uptime, ssl, vitals, subscriptions or testimonials",
+    "enum": [
+     "threshold",
+     "anomaly",
+     "goal",
+     "new_referrer",
+     "no_data",
+     "usage",
+     "uptime",
+     "ssl",
+     "vitals",
+     "subscriptions",
+     "testimonials"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "alerts_history": {
+  "method": "GET",
+  "path": "/alerts/{id}/history.json",
+  "summary": "Incident history of an alert",
+  "inputs": [
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by alerts_list",
+    "in": "path"
+   },
+   {
+    "name": "open",
+    "type": "boolean",
+    "description": "true returns only incidents that have not resolved yet (default false returns all)",
+    "default": false,
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "alerts_acknowledge": {
+  "method": "POST",
+  "path": "/alerts/{id}/acknowledge.json",
+  "summary": "Acknowledge the latest incident",
+  "inputs": [
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by alerts_list",
+    "in": "path"
+   }
+  ]
+ },
+ "alerts_mute": {
+  "method": "POST",
+  "path": "/alerts/{id}/mute.json",
+  "summary": "Mute (or unmute) an alert’s notifications",
+  "inputs": [
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by alerts_list",
+    "in": "path"
+   },
+   {
+    "name": "minutes",
+    "type": "integer",
+    "description": "Mute for this many minutes (default 60, maximum 43200 which is 30 days). 0 unmutes right away",
+    "default": 60,
+    "in": "body"
+   }
+  ]
+ },
+ "uptime_checks_list": {
+  "method": "GET",
+  "path": "/sites/{site_id}/uptime.json",
+  "summary": "List a site's uptime checks",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "status",
+    "type": "string",
+    "description": "Only checks in this state: up, down, pending (no result yet) or paused",
+    "enum": [
+     "up",
+     "down",
+     "pending",
+     "paused"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "query",
+    "type": "string",
+    "description": "Case insensitive text matched against name, url and host",
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "uptime_checks_create": {
+  "method": "POST",
+  "path": "/sites/{site_id}/uptime.json",
+  "summary": "Add an uptime check for a site",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "name",
+    "type": "string",
+    "description": "Display name, max 100 characters. Defaults to the target hostname",
+    "in": "body"
+   },
+   {
+    "name": "kind",
+    "type": "string",
+    "description": "What to check. http requires a response with the expected status from url. keyword also requires keyword in the body. tcp connects to host and port. dns requires host to resolve",
+    "enum": [
+     "http",
+     "keyword",
+     "tcp",
+     "dns"
+    ],
+    "default": "http",
+    "in": "body"
+   },
+   {
+    "name": "url",
+    "type": "string",
+    "description": "Full URL including https://, for http and keyword checks. Defaults to the site's home page for site checks. Private addresses are refused",
+    "in": "body"
+   },
+   {
+    "name": "host",
+    "type": "string",
+    "description": "Hostname without scheme, like example.com, for tcp and dns checks. Private addresses are refused",
+    "in": "body"
+   },
+   {
+    "name": "port",
+    "type": "integer",
+    "description": "TCP port from 1 to 65535, required for tcp checks",
+    "in": "body"
+   },
+   {
+    "name": "keyword",
+    "type": "string",
+    "description": "Text the response body must contain, case sensitive, max 200 characters. Required for keyword checks",
+    "in": "body"
+   },
+   {
+    "name": "expected_status",
+    "type": "integer",
+    "description": "HTTP status code that counts as up, from 100 to 599. Default 200. For http and keyword checks",
+    "default": 200,
+    "in": "body"
+   },
+   {
+    "name": "http_method",
+    "type": "string",
+    "description": "HTTP method used to probe: GET (default) or HEAD. For http and keyword checks",
+    "enum": [
+     "GET",
+     "HEAD"
+    ],
+    "default": "GET",
+    "in": "body"
+   },
+   {
+    "name": "interval_seconds",
+    "type": "integer",
+    "description": "Seconds between probes, from 30 to 86400, and at least your plan minimum (Free 300, Pro 60, Business 30). Default 300 or the plan minimum if higher",
+    "in": "body"
+   },
+   {
+    "name": "timeout_seconds",
+    "type": "integer",
+    "description": "Seconds before a probe counts as failed, from 1 to 30. Default 20",
+    "default": 20,
+    "in": "body"
+   },
+   {
+    "name": "public",
+    "type": "boolean",
+    "description": "Allow this check to be shown on public status pages. Default false",
+    "default": false,
+    "in": "body"
+   }
+  ]
+ },
+ "uptime_checks_pause": {
+  "method": "POST",
+  "path": "/uptime/checks/{id}/pause.json",
+  "summary": "Pause an uptime check",
+  "inputs": [
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by uptime_checks_list",
+    "in": "path"
+   }
+  ]
+ },
+ "uptime_checks_resume": {
+  "method": "POST",
+  "path": "/uptime/checks/{id}/resume.json",
+  "summary": "Resume a paused uptime check",
+  "inputs": [
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by uptime_checks_list",
+    "in": "path"
+   }
+  ]
+ },
+ "status_pages_list": {
+  "method": "GET",
+  "path": "/workspaces/{workspace_id}/status_pages.json",
+  "summary": "List status pages",
+  "inputs": [
+   {
+    "name": "workspace_id",
+    "type": "string",
+    "required": true,
+    "description": "Workspace id, e.g. ws_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "query",
+    "type": "string",
+    "description": "Filter by name or slug",
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "status_page_posts_create": {
+  "method": "POST",
+  "path": "/status_pages/{status_page_id}/posts.json",
+  "summary": "Post an incident update (emails subscribers)",
+  "inputs": [
+   {
+    "name": "status_page_id",
+    "type": "string",
+    "required": true,
+    "description": "Status page id, from status_pages_list",
+    "in": "path"
+   },
+   {
+    "name": "title",
+    "type": "string",
+    "required": true,
+    "description": "Headline of the update, max 200 characters",
+    "in": "body"
+   },
+   {
+    "name": "body",
+    "type": "string",
+    "description": "Update text, plain text, max 10,000 characters",
+    "in": "body"
+   },
+   {
+    "name": "status",
+    "type": "string",
+    "description": "investigating, identified, monitoring or resolved",
+    "enum": [
+     "investigating",
+     "identified",
+     "monitoring",
+     "resolved"
+    ],
+    "default": "investigating",
+    "in": "body"
+   },
+   {
+    "name": "posted_at",
+    "type": "string",
+    "description": "When it happened, ISO 8601 time like 2026-10-02T14:30:00Z. Defaults to now. Posts are sorted by this time",
+    "in": "body"
+   },
+   {
+    "name": "notify",
+    "type": "boolean",
+    "description": "Email confirmed subscribers of a published page. Default true",
+    "default": true,
+    "in": "body"
+   }
+  ]
+ },
+ "links_create": {
+  "method": "POST",
+  "path": "/sites/{site_id}/campaigns/links.json",
+  "summary": "Save a UTM-tagged link to the library",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "name",
+    "type": "string",
+    "required": true,
+    "description": "Link name, up to 120 characters",
+    "in": "body"
+   },
+   {
+    "name": "destination",
+    "type": "string",
+    "required": true,
+    "description": "Landing page URL, http or https, up to 2048 characters. Existing utm_ parameters in it are replaced by the ones you set",
+    "in": "body"
+   },
+   {
+    "name": "utm_source",
+    "type": "string",
+    "description": "Where the traffic comes from, e.g. newsletter. Lowercased, trimmed, spaces become underscores. Personal data is rejected",
+    "in": "body"
+   },
+   {
+    "name": "utm_medium",
+    "type": "string",
+    "description": "Marketing medium, e.g. email or cpc. Lowercased, trimmed, spaces become underscores",
+    "in": "body"
+   },
+   {
+    "name": "utm_campaign",
+    "type": "string",
+    "description": "Campaign name, e.g. spring_sale. Lowercased, trimmed, spaces become underscores",
+    "in": "body"
+   },
+   {
+    "name": "utm_content",
+    "type": "string",
+    "description": "Variant, e.g. header_button. Lowercased, trimmed, spaces become underscores",
+    "in": "body"
+   },
+   {
+    "name": "utm_term",
+    "type": "string",
+    "description": "Paid search keyword. Lowercased, trimmed, spaces become underscores",
+    "in": "body"
+   },
+   {
+    "name": "tags",
+    "type": "array",
+    "description": "Tags for finding the link later. Up to 20, lowercased and cut at 40 characters. Comma separated entries are split",
+    "items": "string",
+    "default": [],
+    "in": "body"
+   },
+   {
+    "name": "notes",
+    "type": "string",
+    "description": "Free text notes",
+    "in": "body"
+   }
+  ]
+ },
+ "campaign_costs_create": {
+  "method": "POST",
+  "path": "/sites/{site_id}/campaigns/costs.json",
+  "summary": "Set the spend for a campaign in a month",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "campaign",
+    "type": "string",
+    "required": true,
+    "description": "The utm_campaign value the spend belongs to, exactly as used in your tracked links (e.g. spring_sale). Matching is case-insensitive when listing. One entry exists per campaign and month, saving again replaces the amount",
+    "in": "body"
+   },
+   {
+    "name": "month",
+    "type": "string",
+    "required": true,
+    "description": "Month the spend is for as YYYY-MM (e.g. 2026-09). A full date such as 2026-09-15 is accepted and snaps to the first of that month",
+    "in": "body"
+   },
+   {
+    "name": "amount",
+    "type": "number",
+    "required": true,
+    "description": "Spend for the month in major currency units as a number, e.g. 1250.50 for 1,250.50. Not minor units. Must not be negative",
+    "in": "body"
+   },
+   {
+    "name": "currency",
+    "type": "string",
+    "description": "3-letter ISO 4217 code in capitals, e.g. USD. Defaults to the site currency",
+    "in": "body"
+   }
+  ]
+ },
+ "experiments_list": {
+  "method": "GET",
+  "path": "/sites/{site_id}/experiments.json",
+  "summary": "List a site's experiments with their visits and conversions",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "status",
+    "type": "string",
+    "description": "Only experiments with this status: draft, scheduled, running, paused, ended or all",
+    "enum": [
+     "draft",
+     "scheduled",
+     "running",
+     "paused",
+     "ended",
+     "all"
+    ],
+    "default": "all",
+    "in": "query"
+   },
+   {
+    "name": "kind",
+    "type": "string",
+    "description": "Only page tests (page) or ad experiments (ad). Leave out for both",
+    "enum": [
+     "page",
+     "ad"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "description": "Page number",
+    "default": 1,
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "description": "Rows per page (up to 100)",
+    "default": 25,
+    "in": "query"
+   }
+  ]
+ },
+ "experiments_get": {
+  "method": "GET",
+  "path": "/sites/{site_id}/experiments/{id}.json",
+  "summary": "Get one experiment with its results",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by experiments_list",
+    "in": "path"
+   },
+   {
+    "name": "split",
+    "type": "string",
+    "description": "Break the results down by one visit attribute: device, channel or country. Pro and up",
+    "enum": [
+     "device",
+     "channel",
+     "country",
+     "page"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "humans_only",
+    "type": "boolean",
+    "description": "Count only visits the bot score calls likely human. Pro and up",
+    "default": false,
+    "in": "query"
+   }
+  ]
+ },
+ "experiments_start": {
+  "method": "POST",
+  "path": "/sites/{site_id}/experiments/{id}/start.json",
+  "summary": "Start an experiment",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by experiments_list",
+    "in": "path"
+   }
+  ]
+ },
+ "experiments_pause": {
+  "method": "POST",
+  "path": "/sites/{site_id}/experiments/{id}/pause.json",
+  "summary": "Pause an experiment and keep its results",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by experiments_list",
+    "in": "path"
+   }
+  ]
+ },
+ "experiments_end": {
+  "method": "POST",
+  "path": "/sites/{site_id}/experiments/{id}/end.json",
+  "summary": "End an experiment for good",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by experiments_list",
+    "in": "path"
+   }
+  ]
+ },
+ "site_audit_run": {
+  "method": "POST",
+  "path": "/sites/{site_id}/audit.json",
+  "summary": "Start a site audit now",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   }
+  ]
+ },
+ "site_audit_get": {
+  "method": "GET",
+  "path": "/sites/{site_id}/audit.json",
+  "summary": "Get the site audit overview: score, counts, top issues by traffic and the audit running now",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "audit_id",
+    "type": "string",
+    "description": "Audit id (aud_..., from site_audit_history). Default is the latest finished audit",
+    "in": "query"
+   }
+  ]
+ },
+ "site_audit_history": {
+  "method": "GET",
+  "path": "/sites/{site_id}/audit/history.json",
+  "summary": "List a site's audits, newest first",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "status",
+    "type": "string",
+    "description": "Only audits in this state: queued, running, analyzing, complete, partial, failed or canceled",
+    "enum": [
+     "queued",
+     "running",
+     "analyzing",
+     "complete",
+     "partial",
+     "failed",
+     "canceled"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "exports_list": {
+  "method": "GET",
+  "path": "/workspaces/{workspace_id}/exports.json",
+  "summary": "List exports (the job queue)",
+  "inputs": [
+   {
+    "name": "workspace_id",
+    "type": "string",
+    "required": true,
+    "description": "Workspace id, e.g. ws_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "site_id",
+    "type": "string",
+    "description": "Only exports of this site (pa_…)",
+    "in": "query"
+   },
+   {
+    "name": "status",
+    "type": "string",
+    "description": "Only exports with this status",
+    "enum": [
+     "queued",
+     "running",
+     "complete",
+     "failed",
+     "expired"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "kind",
+    "type": "string",
+    "description": "Only exports of this kind",
+    "enum": [
+     "aggregated",
+     "pageviews",
+     "events",
+     "imported",
+     "raw",
+     "dashboard",
+     "testimonials",
+     "testimonial_stats",
+     "testimonial_images"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "exports_create": {
+  "method": "POST",
+  "path": "/workspaces/{workspace_id}/exports.json",
+  "summary": "Queue an export (built in the background)",
+  "inputs": [
+   {
+    "name": "workspace_id",
+    "type": "string",
+    "required": true,
+    "description": "Workspace id, e.g. ws_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the site to export, like pa_7Q2K9XH3AB (from sites_list). Required",
+    "in": "body"
+   },
+   {
+    "name": "kind",
+    "type": "string",
+    "description": "What to export. aggregated (default) is visit metrics per time bucket and dimension. pageviews, events and raw are one row per hit (pageviews only, custom events only, every hit) and need the Pro plan or above. imported is imported daily stats. dashboard is a ZIP of the overview panels",
+    "enum": [
+     "aggregated",
+     "pageviews",
+     "events",
+     "imported",
+     "raw",
+     "dashboard"
+    ],
+    "default": "aggregated",
+    "in": "body"
+   },
+   {
+    "name": "file_format",
+    "type": "string",
+    "description": "File type, default csv. Allowed per kind: csv, json or xlsx for aggregated, pageviews, events and imported. csv or ndjson for raw. zip for dashboard",
+    "enum": [
+     "csv",
+     "json",
+     "xlsx",
+     "ndjson",
+     "zip"
+    ],
+    "default": "csv",
+    "in": "body"
+   },
+   {
+    "name": "from",
+    "type": "string",
+    "required": true,
+    "description": "First day to include, YYYY-MM-DD, in the export timezone. Required",
+    "in": "body"
+   },
+   {
+    "name": "to",
+    "type": "string",
+    "required": true,
+    "description": "Last day to include (inclusive), YYYY-MM-DD, on or after from. Required. At most 400 days from from (93 days for raw)",
+    "in": "body"
+   },
+   {
+    "name": "timezone",
+    "type": "string",
+    "description": "IANA timezone name used for dates and time buckets, like America/New_York. Default is the site timezone",
+    "in": "body"
+   },
+   {
+    "name": "grouping",
+    "type": "string",
+    "description": "Time bucket for aggregated exports (also used by dashboard): hour, day (default), week, month, quarter or year",
+    "enum": [
+     "hour",
+     "day",
+     "week",
+     "month",
+     "quarter",
+     "year"
+    ],
+    "default": "day",
+    "in": "body"
+   },
+   {
+    "name": "dimensions",
+    "type": "array",
+    "description": "Up to 6 names to group by. For aggregated: channel, referrer, referrer_url, utm_source, utm_medium, utm_campaign, utm_content, utm_term, ref, hostname, country, language, device, browser, browser_version, os, os_version, screen, entry_page, exit_page or interaction. For imported: total, page, source, country, device, browser or os. Ignored for other kinds",
+    "items": "string",
+    "default": [],
+    "in": "body"
+   },
+   {
+    "name": "metrics",
+    "type": "array",
+    "description": "Metric columns for aggregated exports. Empty means all of them",
+    "items": "string",
+    "itemsEnum": [
+     "visitors",
+     "visits",
+     "pageviews",
+     "bounce_rate",
+     "visit_duration",
+     "views_per_visit",
+     "revenue"
+    ],
+    "default": [],
+    "in": "body"
+   },
+   {
+    "name": "fields",
+    "type": "array",
+    "description": "Columns for pageviews, events and raw exports. Empty means all except visit_id, vital_value and selector. props only includes event properties marked safe to export. revenue_minor is in minor currency units. Ignored for other kinds",
+    "items": "string",
+    "itemsEnum": [
+     "occurred_at",
+     "kind",
+     "name",
+     "visit_id",
+     "hostname",
+     "path",
+     "referrer_host",
+     "referrer_path",
+     "channel",
+     "utm_source",
+     "utm_medium",
+     "utm_campaign",
+     "utm_content",
+     "utm_term",
+     "ref",
+     "paid_click",
+     "country",
+     "language",
+     "device",
+     "browser",
+     "browser_major",
+     "os",
+     "os_major",
+     "screen_bucket",
+     "engaged_ms",
+     "scroll_depth",
+     "revenue_minor",
+     "currency",
+     "vital_value",
+     "selector",
+     "props"
+    ],
+    "default": [],
+    "in": "body"
+   },
+   {
+    "name": "filters",
+    "type": "array",
+    "description": "List of filters, each a three item array [dimension, operator, value] like [[\"country\",\"is\",\"US\"]], same format as the stats tools. Applies to aggregated, pageviews, events, raw and dashboard. Empty means no filter",
+    "items": "string",
+    "default": [],
+    "in": "body"
+   },
+   {
+    "name": "segment_id",
+    "type": "string",
+    "description": "Id of a saved segment, like seg_..., from segments_list. Its filters are added to filters. Must be shared or your own. Ignored for imported",
+    "in": "body"
+   }
+  ]
+ },
+ "members_list": {
+  "method": "GET",
+  "path": "/workspaces/{workspace_id}/members.json",
+  "summary": "List workspace members",
+  "inputs": [
+   {
+    "name": "workspace_id",
+    "type": "string",
+    "required": true,
+    "description": "Workspace id, e.g. ws_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "query",
+    "type": "string",
+    "description": "Partial, case-insensitive match on the member's name or email.",
+    "in": "query"
+   },
+   {
+    "name": "role",
+    "type": "string",
+    "description": "Only members with this role, one of owner, admin, editor, analyst, viewer, billing or custom.",
+    "enum": [
+     "owner",
+     "admin",
+     "editor",
+     "analyst",
+     "viewer",
+     "billing",
+     "custom"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "invitations_create": {
+  "method": "POST",
+  "path": "/workspaces/{workspace_id}/invitations.json",
+  "summary": "Invite people by email",
+  "inputs": [
+   {
+    "name": "workspace_id",
+    "type": "string",
+    "required": true,
+    "description": "Workspace id, e.g. ws_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "emails",
+    "type": "array",
+    "required": true,
+    "description": "Up to 50 email addresses to invite. Addresses that are already members are skipped.",
+    "items": "string",
+    "in": "body"
+   },
+   {
+    "name": "role",
+    "type": "string",
+    "description": "Role for the invited people, one of admin, editor, analyst, viewer, billing or custom. Default viewer. Use custom together with custom_role_id. Owner cannot be invited.",
+    "enum": [
+     "admin",
+     "editor",
+     "analyst",
+     "viewer",
+     "billing",
+     "custom"
+    ],
+    "default": "viewer",
+    "in": "body"
+   },
+   {
+    "name": "custom_role_id",
+    "type": "string",
+    "description": "Id (uuid) of a custom role from roles_list. Required when role is custom (Business plan).",
+    "in": "body"
+   },
+   {
+    "name": "all_sites",
+    "type": "boolean",
+    "description": "true (default) gives access to every site including future ones. Set false to limit access to site_ids.",
+    "default": true,
+    "in": "body"
+   },
+   {
+    "name": "site_ids",
+    "type": "array",
+    "description": "Public site ids (pa_..., from sites_list) the invited people may access. Only used when all_sites is false.",
+    "items": "string",
+    "default": [],
+    "in": "body"
+   }
+  ]
+ },
+ "testimonials_list": {
+  "method": "GET",
+  "path": "/sites/{site_id}/testimonials.json",
+  "summary": "List the testimonials of a site, filtered and sorted",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "view_id",
+    "type": "string",
+    "description": "A saved view to apply (vw_...). Its filters, search text, sort, layout and columns are used, and any other input given beside it overrides the view's value for that input",
+    "in": "query"
+   },
+   {
+    "name": "layout",
+    "type": "string",
+    "description": "list, cards, board or highlights. Returned in meta.layout. It changes nothing about which testimonials are listed",
+    "enum": [
+     "list",
+     "cards",
+     "board",
+     "highlights"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "columns",
+    "type": "array",
+    "description": "Columns of the list layout. Returned in meta.columns",
+    "items": "string",
+    "in": "query"
+   },
+   {
+    "name": "q",
+    "type": "string",
+    "description": "The search box. Words and \"quoted phrases\" search the text, title, person and company. Operators: status: kind: source: from: form: tag: collection: lang: has: is: consent: received: person: company: email: used: mentions: rating: and prop.<key>:. A comma means any of, a leading minus excludes, and terms are joined with and. Example: rating:5 has:video tag:onboarding \"saved us\"",
+    "in": "query"
+   },
+   {
+    "name": "sort",
+    "type": "string",
+    "description": "received_desc (the default), received_asc, added_desc, added_asc, rating_desc, rating_asc, person_asc, length_desc, length_asc, used_desc, used_asc, or relevance (the default when q has words, and only allowed then)",
+    "enum": [
+     "received_desc",
+     "received_asc",
+     "added_desc",
+     "added_asc",
+     "rating_desc",
+     "rating_asc",
+     "person_asc",
+     "length_desc",
+     "length_asc",
+     "used_desc",
+     "used_asc",
+     "relevance"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "status",
+    "type": "array",
+    "description": "Any of pending, approved, rejected",
+    "items": "string",
+    "itemsEnum": [
+     "pending",
+     "approved",
+     "rejected"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "kind",
+    "type": "array",
+    "description": "Any of text, video, audio",
+    "items": "string",
+    "itemsEnum": [
+     "text",
+     "video",
+     "audio"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "rating",
+    "type": "array",
+    "description": "Any of 1 to 5 (as strings), and none for no rating",
+    "items": "string",
+    "itemsEnum": [
+     "1",
+     "2",
+     "3",
+     "4",
+     "5",
+     "none"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "source",
+    "type": "array",
+    "description": "Any of form, import, manual, extension, api, migration",
+    "items": "string",
+    "itemsEnum": [
+     "form",
+     "import",
+     "manual",
+     "extension",
+     "api",
+     "migration"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "source_name",
+    "type": "array",
+    "description": "Platform or source names as stored, e.g. Google",
+    "items": "string",
+    "in": "query"
+   },
+   {
+    "name": "form_id",
+    "type": "array",
+    "description": "Form ids (frm_...) or form names",
+    "items": "string",
+    "in": "query"
+   },
+   {
+    "name": "tag_id",
+    "type": "array",
+    "description": "Tag ids (tag_...) or tag names",
+    "items": "string",
+    "in": "query"
+   },
+   {
+    "name": "tag_match",
+    "type": "string",
+    "description": "any (the default) matches any of the tags, all needs every one",
+    "enum": [
+     "any",
+     "all"
+    ],
+    "default": "any",
+    "in": "query"
+   },
+   {
+    "name": "untagged",
+    "type": "string",
+    "description": "yes for testimonials with no tag. With tag_id, either matches",
+    "enum": [
+     "yes"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "collection_id",
+    "type": "array",
+    "description": "Collection ids (col_...) or names. A smart collection is read as its rules",
+    "items": "string",
+    "in": "query"
+   },
+   {
+    "name": "no_collection",
+    "type": "string",
+    "description": "yes for testimonials in no manual collection",
+    "enum": [
+     "yes"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "language",
+    "type": "array",
+    "description": "Language codes, e.g. de",
+    "items": "string",
+    "in": "query"
+   },
+   {
+    "name": "has_photo",
+    "type": "string",
+    "description": "yes or no. The person has a photo",
+    "enum": [
+     "yes",
+     "no"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "has_video",
+    "type": "string",
+    "description": "yes or no. A video file is attached",
+    "enum": [
+     "yes",
+     "no"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "has_image",
+    "type": "string",
+    "description": "yes or no. An image is attached",
+    "enum": [
+     "yes",
+     "no"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "consent",
+    "type": "string",
+    "description": "granted for consent on record, source_only for a source record",
+    "enum": [
+     "granted",
+     "source_only"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "consent_permission",
+    "type": "array",
+    "description": "Permissions that must all be granted",
+    "items": "string",
+    "itemsEnum": [
+     "show_name",
+     "show_photo",
+     "show_video",
+     "marketing"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "verified",
+    "type": "string",
+    "description": "yes or no",
+    "enum": [
+     "yes",
+     "no"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "received",
+    "type": "string",
+    "description": "A preset: today, 7d, 30d, 90d, this_year, last_year",
+    "enum": [
+     "today",
+     "7d",
+     "30d",
+     "90d",
+     "this_year",
+     "last_year"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "received_from",
+    "type": "string",
+    "description": "First day received (YYYY-MM-DD), on the site's clock",
+    "in": "query"
+   },
+   {
+    "name": "received_to",
+    "type": "string",
+    "description": "Last day received (YYYY-MM-DD)",
+    "in": "query"
+   },
+   {
+    "name": "age",
+    "type": "array",
+    "description": "Freshness: any of 0_6m, 6_12m, 1_2y, over_2y",
+    "items": "string",
+    "itemsEnum": [
+     "0_6m",
+     "6_12m",
+     "1_2y",
+     "over_2y"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "person_id",
+    "type": "array",
+    "description": "Person ids (per_...)",
+    "items": "string",
+    "in": "query"
+   },
+   {
+    "name": "company",
+    "type": "array",
+    "description": "Company names or website hosts",
+    "items": "string",
+    "in": "query"
+   },
+   {
+    "name": "properties",
+    "type": "object",
+    "description": "Custom property values by key, e.g. {\"plan\": [\"Team\"]}. A number range is \"10..50\", yes or no is \"yes\" or \"no\", and \"none\" means not filled",
+    "in": "query"
+   },
+   {
+    "name": "usage",
+    "type": "string",
+    "description": "unused, used, or used_3_plus",
+    "enum": [
+     "unused",
+     "used",
+     "used_3_plus"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "used_by",
+    "type": "array",
+    "description": "Ids of the widgets (wdg_...) or walls (wal_...) that show it",
+    "items": "string",
+    "in": "query"
+   },
+   {
+    "name": "mention",
+    "type": "array",
+    "description": "Recurring terms to search for",
+    "items": "string",
+    "in": "query"
+   },
+   {
+    "name": "has_highlight",
+    "type": "string",
+    "description": "yes or no",
+    "enum": [
+     "yes",
+     "no"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "pinned",
+    "type": "string",
+    "description": "yes or no",
+    "enum": [
+     "yes",
+     "no"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "edited",
+    "type": "string",
+    "description": "yes or no",
+    "enum": [
+     "yes",
+     "no"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "waiting",
+    "type": "string",
+    "description": "yes or no. Waiting for allowance",
+    "enum": [
+     "yes",
+     "no"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "duplicate",
+    "type": "string",
+    "description": "yes or no. In the duplicates queue",
+    "enum": [
+     "yes",
+     "no"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "match",
+    "type": "string",
+    "description": "How the conditions are joined, all (the default) or any",
+    "enum": [
+     "all",
+     "any"
+    ],
+    "default": "all",
+    "in": "query"
+   },
+   {
+    "name": "conditions",
+    "type": "array",
+    "description": "Structured rows, each {\"field\", \"operator\", \"value\"}, e.g. [{\"field\": \"rating\", \"operator\": \"is_at_least\", \"value\": 4}]. Fields and operators are listed in the docs",
+    "items": "object",
+    "in": "query"
+   },
+   {
+    "name": "trashed",
+    "type": "boolean",
+    "description": "true lists the trash and nothing else",
+    "default": false,
+    "in": "query"
+   },
+   {
+    "name": "facets",
+    "type": "boolean",
+    "description": "true adds the live count behind every facet value as meta.facets",
+    "default": false,
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "testimonials_get": {
+  "method": "GET",
+  "path": "/sites/{site_id}/testimonials/{id}.json",
+  "summary": "Get one testimonial with its person, files, consent record, tags and where it is used",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by testimonials_list",
+    "in": "path"
+   }
+  ]
+ },
+ "testimonials_create": {
+  "method": "POST",
+  "path": "/sites/{site_id}/testimonials.json",
+  "summary": "Add a testimonial by hand or through the API",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "kind",
+    "type": "string",
+    "description": "text (the default), video or audio",
+    "enum": [
+     "text",
+     "video",
+     "audio"
+    ],
+    "default": "text",
+    "in": "body"
+   },
+   {
+    "name": "body",
+    "type": "string",
+    "description": "The words. Required for text, an optional caption for video and audio. Up to 10,000 characters",
+    "in": "body"
+   },
+   {
+    "name": "media_id",
+    "type": "string",
+    "description": "The uploaded video or audio file (med_...). Required for video and audio",
+    "in": "body"
+   },
+   {
+    "name": "image_media_ids",
+    "type": "array",
+    "description": "Up to 4 uploaded images kept with the testimonial (med_...)",
+    "items": "string",
+    "default": [],
+    "in": "body"
+   },
+   {
+    "name": "title",
+    "type": "string",
+    "description": "Optional, up to 200 characters",
+    "in": "body"
+   },
+   {
+    "name": "rating",
+    "type": "integer",
+    "description": "1 to 5. Leave out for no rating",
+    "in": "body"
+   },
+   {
+    "name": "highlight",
+    "type": "string",
+    "description": "The best sentence. Must be an exact part of body",
+    "in": "body"
+   },
+   {
+    "name": "person_id",
+    "type": "string",
+    "description": "A person already on the site (per_...). Or give the person fields",
+    "in": "body"
+   },
+   {
+    "name": "person_name",
+    "type": "string",
+    "description": "Required when there is no person_id",
+    "in": "body"
+   },
+   {
+    "name": "person_title",
+    "type": "string",
+    "description": "Their job title",
+    "in": "body"
+   },
+   {
+    "name": "person_company",
+    "type": "string",
+    "description": "Their company",
+    "in": "body"
+   },
+   {
+    "name": "person_company_url",
+    "type": "string",
+    "description": "The company's website",
+    "in": "body"
+   },
+   {
+    "name": "person_email",
+    "type": "string",
+    "description": "Their email. Never public. An address already on the site links to that person",
+    "in": "body"
+   },
+   {
+    "name": "person_social_url",
+    "type": "string",
+    "description": "A link to their profile",
+    "in": "body"
+   },
+   {
+    "name": "person_avatar_media_id",
+    "type": "string",
+    "description": "Their uploaded photo (med_...)",
+    "in": "body"
+   },
+   {
+    "name": "received_at",
+    "type": "string",
+    "description": "When they gave it. Defaults to now. A day alone (2026-10-10) is that day by the site's clock",
+    "in": "body"
+   },
+   {
+    "name": "source_name",
+    "type": "string",
+    "description": "Where it came from, e.g. Email, Chat or a review site",
+    "in": "body"
+   },
+   {
+    "name": "source_url",
+    "type": "string",
+    "description": "A public link to it",
+    "in": "body"
+   },
+   {
+    "name": "language",
+    "type": "string",
+    "description": "Language code. Defaults to the site's language",
+    "in": "body"
+   },
+   {
+    "name": "status",
+    "type": "string",
+    "description": "pending (the default) or approved",
+    "enum": [
+     "pending",
+     "approved"
+    ],
+    "default": "pending",
+    "in": "body"
+   },
+   {
+    "name": "tags",
+    "type": "array",
+    "description": "Tag names or ids. A new name is created",
+    "items": "string",
+    "default": [],
+    "in": "body"
+   },
+   {
+    "name": "collection_ids",
+    "type": "array",
+    "description": "Manual collections to add it to (col_...)",
+    "items": "string",
+    "default": [],
+    "in": "body"
+   },
+   {
+    "name": "properties",
+    "type": "object",
+    "description": "Custom property values by key, checked against the site's schema",
+    "default": {},
+    "in": "body"
+   },
+   {
+    "name": "pinned",
+    "type": "boolean",
+    "description": "Shown first wherever it is displayed",
+    "default": false,
+    "in": "body"
+   },
+   {
+    "name": "external_id",
+    "type": "string",
+    "description": "Your own id for it. The same one sent again returns the testimonial already stored",
+    "in": "body"
+   },
+   {
+    "name": "allow_duplicate",
+    "type": "boolean",
+    "description": "true saves it even though this person already said these words",
+    "default": false,
+    "in": "body"
+   },
+   {
+    "name": "via",
+    "type": "string",
+    "description": "For an API token. api (the default) or extension, which stores the source as captured from a web page. Ignored for a signed-in member, whose source is always manual",
+    "enum": [
+     "api",
+     "extension"
+    ],
+    "in": "body"
+   }
+  ]
+ },
+ "testimonials_update": {
+  "method": "PATCH",
+  "path": "/sites/{site_id}/testimonials/{id}.json",
+  "summary": "Edit a testimonial. Changes to the words, title, rating and highlight are kept in its history",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by testimonials_list",
+    "in": "path"
+   },
+   {
+    "name": "body",
+    "type": "string",
+    "description": "The words. A change is kept in the history",
+    "in": "body"
+   },
+   {
+    "name": "title",
+    "type": "string",
+    "description": "Up to 200 characters. A change is kept in the history",
+    "in": "body"
+   },
+   {
+    "name": "rating",
+    "type": "integer",
+    "description": "1 to 5, or null to clear it. A change is kept in the history",
+    "in": "body"
+   },
+   {
+    "name": "highlight",
+    "type": "string",
+    "description": "An exact part of the words. Empty clears it",
+    "in": "body"
+   },
+   {
+    "name": "language",
+    "type": "string",
+    "description": "Language code",
+    "in": "body"
+   },
+   {
+    "name": "received_at",
+    "type": "string",
+    "description": "When they gave it. A day alone (2026-10-10) is that day by the site's clock",
+    "in": "body"
+   },
+   {
+    "name": "source_name",
+    "type": "string",
+    "description": "The platform or place it came from",
+    "in": "body"
+   },
+   {
+    "name": "source_url",
+    "type": "string",
+    "description": "A public link to it",
+    "in": "body"
+   },
+   {
+    "name": "properties",
+    "type": "object",
+    "description": "Custom property values to change, by key. An empty value clears one",
+    "in": "body"
+   },
+   {
+    "name": "person_id",
+    "type": "string",
+    "description": "Link it to another person of the site (per_...)",
+    "in": "body"
+   },
+   {
+    "name": "edit_note",
+    "type": "string",
+    "description": "A line kept with the history entry, up to 280 characters",
+    "in": "body"
+   },
+   {
+    "name": "add_tags",
+    "type": "array",
+    "description": "Tag names or ids to add. A name that is new is created",
+    "items": "string",
+    "in": "body"
+   },
+   {
+    "name": "remove_tags",
+    "type": "array",
+    "description": "Tag names or ids to remove",
+    "items": "string",
+    "in": "body"
+   },
+   {
+    "name": "permalink",
+    "type": "boolean",
+    "description": "Switches its public page (/t/<tm_id>) on or off. The page responds only while the testimonial is approved, not in the trash and allowed by its consent record",
+    "in": "body"
+   }
+  ]
+ },
+ "testimonials_approve": {
+  "method": "POST",
+  "path": "/sites/{site_id}/testimonials/{id}/approve.json",
+  "summary": "Approve a testimonial so it may be shown",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by testimonials_list",
+    "in": "path"
+   }
+  ]
+ },
+ "testimonials_reject": {
+  "method": "POST",
+  "path": "/sites/{site_id}/testimonials/{id}/reject.json",
+  "summary": "Reject a testimonial. It is kept and shown nowhere",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by testimonials_list",
+    "in": "path"
+   }
+  ]
+ },
+ "testimonials_pend": {
+  "method": "POST",
+  "path": "/sites/{site_id}/testimonials/{id}/pend.json",
+  "summary": "Put a testimonial back to pending",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by testimonials_list",
+    "in": "path"
+   }
+  ]
+ },
+ "testimonials_pin": {
+  "method": "POST",
+  "path": "/sites/{site_id}/testimonials/{id}/pin.json",
+  "summary": "Pin a testimonial so it is shown first, or unpin it",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "id",
+    "type": "string",
+    "required": true,
+    "description": "Id of the item to act on, the id field returned by testimonials_list",
+    "in": "path"
+   },
+   {
+    "name": "pinned",
+    "type": "boolean",
+    "description": "true to pin (the default), false to unpin",
+    "default": true,
+    "in": "body"
+   }
+  ]
+ },
+ "testimonial_people_list": {
+  "method": "GET",
+  "path": "/sites/{site_id}/testimonials/people.json",
+  "summary": "List the people of a site, filtered and sorted",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "query",
+    "type": "string",
+    "description": "Part of a name or a company. For a caller with content.write, also part of an email address",
+    "in": "query"
+   },
+   {
+    "name": "company",
+    "type": "string",
+    "description": "A company name or website host. Only its people are listed",
+    "in": "query"
+   },
+   {
+    "name": "has_email",
+    "type": "string",
+    "description": "yes for people with an email address on record, no for those without",
+    "enum": [
+     "yes",
+     "no"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "testimonials",
+    "type": "string",
+    "description": "one for people with exactly one testimonial, several for two or more",
+    "enum": [
+     "one",
+     "several"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "asked",
+    "type": "string",
+    "description": "never for people who were never asked, waiting for those asked with no response yet, answered for those who answered an ask",
+    "enum": [
+     "never",
+     "waiting",
+     "answered"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "newest",
+    "type": "string",
+    "description": "fresh when their newest testimonial is under two years old, old when it is over two years old",
+    "enum": [
+     "fresh",
+     "old"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "duplicate",
+    "type": "string",
+    "description": "yes for people who look like another person (the same name and company)",
+    "enum": [
+     "yes"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "sort",
+    "type": "string",
+    "description": "name (the default), testimonials_desc, received_desc or asked_desc",
+    "enum": [
+     "name",
+     "testimonials_desc",
+     "received_desc",
+     "asked_desc"
+    ],
+    "default": "name",
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "testimonial_people_create": {
+  "method": "POST",
+  "path": "/sites/{site_id}/testimonials/people.json",
+  "summary": "Add a person to a site",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "name",
+    "type": "string",
+    "description": "The person's name, up to 120 characters",
+    "in": "body"
+   },
+   {
+    "name": "title",
+    "type": "string",
+    "description": "Their job title",
+    "in": "body"
+   },
+   {
+    "name": "company",
+    "type": "string",
+    "description": "Where they work",
+    "in": "body"
+   },
+   {
+    "name": "company_url",
+    "type": "string",
+    "description": "The company's website (http or https). It groups people into companies",
+    "in": "body"
+   },
+   {
+    "name": "social_url",
+    "type": "string",
+    "description": "A link to their profile (http or https)",
+    "in": "body"
+   },
+   {
+    "name": "email",
+    "type": "string",
+    "description": "Their email address. Never shown publicly. One person per address on a site",
+    "in": "body"
+   },
+   {
+    "name": "avatar_media_id",
+    "type": "string",
+    "description": "The id (med_...) of an image already uploaded to this site, as their photo",
+    "in": "body"
+   }
+  ]
+ },
+ "testimonial_forms_list": {
+  "method": "GET",
+  "path": "/sites/{site_id}/testimonials/forms.json",
+  "summary": "List the forms of a site",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "q",
+    "type": "string",
+    "description": "Searches the name and the slug",
+    "in": "query"
+   },
+   {
+    "name": "language",
+    "type": "string",
+    "description": "Only forms in this language, e.g. de",
+    "enum": [
+     "en",
+     "de",
+     "es",
+     "fr",
+     "it",
+     "nl",
+     "pt",
+     "pl",
+     "sv",
+     "da",
+     "no",
+     "fi",
+     "ja",
+     "ko",
+     "zh-CN",
+     "zh-TW"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "sort",
+    "type": "string",
+    "description": "name (the default), created or submissions",
+    "enum": [
+     "name",
+     "created",
+     "submissions"
+    ],
+    "default": "name",
+    "in": "query"
+   },
+   {
+    "name": "direction",
+    "type": "string",
+    "description": "asc or desc. The default is asc for name and desc for the others",
+    "enum": [
+     "asc",
+     "desc"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "trashed",
+    "type": "boolean",
+    "description": "true lists the forms in the trash instead",
+    "default": false,
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "testimonial_requests_list": {
+  "method": "GET",
+  "path": "/sites/{site_id}/testimonials/requests.json",
+  "summary": "List the requests of a site",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "q",
+    "type": "string",
+    "description": "Searches the name and the subject",
+    "in": "query"
+   },
+   {
+    "name": "status",
+    "type": "string",
+    "description": "One of draft, scheduled, sending, waiting, stopped, finished",
+    "enum": [
+     "draft",
+     "scheduled",
+     "sending",
+     "waiting",
+     "stopped",
+     "finished"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "form_id",
+    "type": "string",
+    "description": "Only requests that lead to this form, e.g. frm_7Q2K9XH3AB",
+    "in": "query"
+   },
+   {
+    "name": "period",
+    "type": "string",
+    "description": "Requests created or sent within 7d, 30d, 90d or 12m. all (the default) lists every one",
+    "enum": [
+     "7d",
+     "30d",
+     "90d",
+     "12m",
+     "all"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "testimonial_request_recipients_create": {
+  "method": "POST",
+  "path": "/sites/{site_id}/testimonials/requests/{request_id}/recipients.json",
+  "summary": "Add people to a request",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "request_id",
+    "type": "string",
+    "required": true,
+    "description": "Testimonial request id (req_...), from testimonial_requests_list",
+    "in": "path"
+   },
+   {
+    "name": "recipients",
+    "type": "array",
+    "required": true,
+    "description": "A list of up to 500 people, each { email, name, company, title, properties }. Only email is required",
+    "items": "object",
+    "in": "body"
+   }
+  ]
+ },
+ "testimonial_tags_list": {
+  "method": "GET",
+  "path": "/sites/{site_id}/testimonials/tags.json",
+  "summary": "List the tags of a site with their rules",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "query",
+    "type": "string",
+    "description": "Narrow the list to tags whose name contains this text",
+    "in": "query"
+   },
+   {
+    "name": "sort",
+    "type": "string",
+    "description": "name (the default), used (most used first) or newest",
+    "enum": [
+     "name",
+     "used",
+     "newest"
+    ],
+    "default": "name",
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ },
+ "testimonial_collections_list": {
+  "method": "GET",
+  "path": "/sites/{site_id}/testimonials/collections.json",
+  "summary": "List the collections of a site",
+  "inputs": [
+   {
+    "name": "site_id",
+    "type": "string",
+    "required": true,
+    "description": "Site id, e.g. pa_7Q2K9XH3AB",
+    "in": "path"
+   },
+   {
+    "name": "query",
+    "type": "string",
+    "description": "Narrow the list to collections whose name or description contains this text",
+    "in": "query"
+   },
+   {
+    "name": "kind",
+    "type": "string",
+    "description": "manual or smart",
+    "enum": [
+     "manual",
+     "smart"
+    ],
+    "in": "query"
+   },
+   {
+    "name": "sort",
+    "type": "string",
+    "description": "name (the default), updated (most recently changed first) or size (most testimonials first)",
+    "enum": [
+     "name",
+     "updated",
+     "size"
+    ],
+    "default": "name",
+    "in": "query"
+   },
+   {
+    "name": "page",
+    "type": "integer",
+    "in": "query"
+   },
+   {
+    "name": "per_page",
+    "type": "integer",
+    "in": "query"
+   }
+  ]
+ }
+}

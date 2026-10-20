@@ -1,0 +1,5 @@
+{
+	"secret": "whsec_parity0123456789abcdef0123456789abcdef01234567",
+	"body": "{\"id\":\"whd_9K3M7QX2PL\",\"event\":\"testimonial.received\",\"created_at\":\"2026-10-20T10:15:00Z\",\"workspace_id\":\"ws_5N8D2WLE4C\",\"data\":{\"site_id\":\"pa_7Q2K9XH3AB\",\"testimonial\":{\"id\":\"tm_4TXN8R2KQ7\",\"rating\":5},\"source\":\"form\",\"held_for_allowance\":false}}",
+	"header": "t=1792500000,v1=eeb31ec6fc072ec01d17a654b6bf0c2c63b5d6ff13b6d61724c21c4b0886174f"
+}

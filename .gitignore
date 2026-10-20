@@ -1,0 +1,8 @@
+node_modules
+node_modules/
+.secrets/
+.DS_Store
+SUBMISSION.md
+.env
+.env.local
+coverage/
