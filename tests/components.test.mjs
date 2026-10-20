@@ -57,8 +57,8 @@ describe("package", () => {
 });
 
 describe("actions", () => {
-  it("has the 21 actions and 14 searches of the Zapier app, and a custom request", () => {
-    assert.strictEqual(actionFiles.length, 41);
+  it("has the 21 actions and 14 searches of the Zapier app, six lookups and a custom request", () => {
+    assert.strictEqual(actionFiles.length, 47);
   });
 
   it("has complete definitions", async () => {
@@ -77,7 +77,14 @@ describe("actions", () => {
         "openWorldHint",
         "readOnlyHint",
       ]);
-      assert.strictEqual(action.annotations.destructiveHint, false, "nothing deletes data");
+      assert.strictEqual(action.ai, "optimized", file);
+      assert.strictEqual(action.annotations.openWorldHint, true, file);
+      // Only the custom request can overwrite data (PATCH and PUT), nothing deletes it.
+      assert.strictEqual(
+        action.annotations.destructiveHint,
+        slug === "send-custom-api-request",
+        file,
+      );
       assert.ok(action.props.app, file);
       assert.doesNotMatch(action.name, /Privatus|delete|remove/i);
     }
@@ -97,6 +104,65 @@ describe("actions", () => {
       assert.doesNotMatch(text, /\banswer/i, `answer in: ${text}`);
       assert.doesNotMatch(text, /Privatus(?![ -]|_Analytics|analytics)/, `Privatus alone in: ${text}`);
       assert.doesNotMatch(text, /[a-z]+_(list|get|create|update)\b(?!\.)/, `API tool name in: ${text}`);
+    }
+  });
+});
+
+const SITE_DEPENDENT = [
+  "testimonialId",
+  "segmentId",
+  "experimentId",
+  "uptimeCheckId",
+  "testimonialRequestId",
+  "testimonialFormId",
+  "testimonialFormIds",
+  "testimonialTagIds",
+  "testimonialCollectionIds",
+];
+
+describe("dependent options", () => {
+  it("passes the site to every options loader that needs it", async () => {
+    let checked = 0;
+    for (const file of [
+      ...actionFiles,
+      ...sourceFiles,
+    ]) {
+      const component = await load(file);
+      for (const [
+        name,
+        prop,
+      ] of Object.entries(component.props)) {
+        const [
+          , definition,
+          mapper,
+        ] = prop.propDefinition || [];
+        if (!SITE_DEPENDENT.includes(definition)) continue;
+        assert.strictEqual(typeof mapper, "function", `${file} ${name}`);
+        assert.deepStrictEqual(mapper({
+          siteId: "pa_TEST",
+        }), {
+          siteId: "pa_TEST",
+        });
+        checked++;
+      }
+    }
+    assert.ok(checked > 20);
+  });
+
+  it("names a lookup action that exists in every ID description", async () => {
+    const names = new Set();
+    for (const file of actionFiles) names.add((await load(file)).name);
+    for (const name of SITE_DEPENDENT.concat([
+      "siteId",
+      "siteIds",
+      "alertId",
+      "statusPageId",
+    ])) {
+      const found = [
+        ...app.propDefinitions[name].description.matchAll(/Use \*\*([^*]+)\*\*/g),
+      ].map((m) => m[1]);
+      assert.ok(found.length, name);
+      for (const tool of found) assert.ok(names.has(tool), `${name} names ${tool}`);
     }
   });
 });
@@ -440,6 +506,115 @@ describe("action requests", () => {
       "POST",
       "PUT",
     ]);
+  });
+
+  it("rejects a custom request path outside the API host", async () => {
+    await assert.rejects(run("actions/send-custom-api-request/send-custom-api-request.mjs", {
+      method: "GET",
+      path: "//evil.example.net/x",
+    }, () => ({})), /Path/);
+  });
+
+  it("sends a null to clear the rating and the highlight of a testimonial", async () => {
+    const { calls } = await run("actions/update-testimonial/update-testimonial.mjs", {
+      siteId: "pa_1",
+      testimonialId: "tm_1",
+      title: "New title",
+      clearRating: true,
+      clearHighlight: true,
+    }, () => ({
+      data: {},
+    }));
+    assert.strictEqual(calls[0].method, "PATCH");
+    assert.deepStrictEqual(calls[0].data, {
+      title: "New title",
+      rating: null,
+      highlight: null,
+    });
+    const kept = await run("actions/update-testimonial/update-testimonial.mjs", {
+      siteId: "pa_1",
+      testimonialId: "tm_1",
+      rating: "4",
+    }, () => ({
+      data: {},
+    }));
+    assert.deepStrictEqual(kept.calls[0].data, {
+      rating: 4,
+    });
+  });
+
+  it("does not make up a date for a chart note, and uses the workspace path helper", async () => {
+    const site = await run("actions/create-chart-note/create-chart-note.mjs", {
+      siteId: "pa_1",
+      title: "Deploy",
+    }, () => ({
+      data: {
+        title: "Deploy",
+      },
+    }));
+    assert.deepStrictEqual(site.calls[0].data, {
+      title: "Deploy",
+    });
+    const workspace = await run("actions/create-workspace-chart-note/create-workspace-chart-note.mjs", {
+      title: "Release",
+      date: "2026-10-20T23:30:00Z",
+    }, () => ({
+      data: {
+        title: "Release",
+      },
+    }));
+    assert.strictEqual(workspace.calls[0].path, "/workspaces/ws_TEST/notes.json");
+    assert.deepStrictEqual(workspace.calls[0].data, {
+      title: "Release",
+      date: "2026-10-20",
+    });
+  });
+
+  it("asks for the property key when the report is a custom property", async () => {
+    await assert.rejects(run("actions/get-top-values/get-top-values.mjs", {
+      siteId: "pa_ABC",
+      dimension: "prop",
+      period: "7d",
+    }, () => ({})), /Property Key/);
+  });
+
+  it("limits the live visitors feed from 1 to 100", async () => {
+    const action = await load("actions/get-live-visitors/get-live-visitors.mjs");
+    assert.strictEqual(action.props.limit.default, 10);
+    assert.strictEqual(action.props.limit.min, 1);
+    assert.strictEqual(action.props.limit.max, 100);
+  });
+
+  it("finds status pages and testimonial requests", async () => {
+    const pages = await run("actions/find-status-pages/find-status-pages.mjs", {
+      maxResults: 10,
+    }, () => ({
+      data: [
+        {
+          id: "sp_1",
+        },
+      ],
+      meta: {
+        total_pages: 1,
+      },
+    }));
+    assert.match(pages.calls[0].path, /^\/workspaces\/ws_TEST\/status_pages\.json\?/);
+    assert.deepStrictEqual(pages.result, [
+      {
+        id: "sp_1",
+      },
+    ]);
+    const requests = await run("actions/find-testimonial-requests/find-testimonial-requests.mjs", {
+      siteId: "pa_1",
+      status: "draft",
+      maxResults: 10,
+    }, () => ({
+      data: [],
+      meta: {
+        total_pages: 1,
+      },
+    }));
+    assert.match(requests.calls[0].path, /^\/sites\/pa_1\/testimonials\/requests\.json\?status=draft&/);
   });
 });
 

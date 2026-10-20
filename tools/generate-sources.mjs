@@ -79,7 +79,7 @@ for (const event of events) {
     props.push(`siteId: {
       propDefinition: [app, "siteId"],
       optional: true,
-      description: "Only emit events of this site. Leave it empty for every site.",
+      description: "Only emit events of this site, e.g. \`pa_7Q2K9XH3AB\`. Use **Find Site** to get the site ID. Leave it empty for every site.",
     }`);
     checks.push("(!this.siteId || (item.site_id || item.check?.site_id) === this.siteId)");
   }
@@ -87,38 +87,35 @@ for (const event of events) {
     props.push(`alertId: {
       propDefinition: [app, "alertId"],
       optional: true,
-      description: "Only emit events of this alert rule. Leave it empty for every rule.",
+      description: "Only emit events of this alert rule, e.g. \`alr_3W7L9QK2VD\`. Use **Find Alert Rules** to get the alert rule ID. Leave it empty for every rule.",
     }`);
     checks.push("(!this.alertId || item.alert_id === this.alertId)");
   }
   if (event.filters.includes("formId")) {
     props.push(`formId: {
-      propDefinition: [app, "testimonialFormId"],
+      propDefinition: [app, "testimonialFormId", (c) => ({ siteId: c.siteId })],
       optional: true,
-      description: "Only emit submissions of this form. Select a **Site** first. Leave it empty for every form.",
+      description: "Only emit submissions of this form, e.g. \`frm_3C8V5ZP2RN\`. Set **Site** first. Use **Find Testimonial Forms** to get the form ID. Leave it empty for every form.",
     }`);
     checks.push("(!this.formId || item.form_id === this.formId)");
   }
   if (event.filters.includes("requestId")) {
     props.push(`requestId: {
-      propDefinition: [app, "testimonialRequestId"],
+      propDefinition: [app, "testimonialRequestId", (c) => ({ siteId: c.siteId })],
       optional: true,
-      description: "Only emit events of this request. Select a **Site** first. Leave it empty for every request.",
+      description: "Only emit events of this request, e.g. \`req_5V9C2XM7TL\`. Set **Site** first. Use **Find Testimonial Requests** to get the request ID. Leave it empty for every request.",
     }`);
     checks.push("(!this.requestId || item.request_id === this.requestId)");
   }
   if (event.filters.includes("minRating")) {
     props.push(`minRating: {
-      type: "string",
-      label: "Minimum Rating",
-      description: "Only emit ratings of at least this many stars. Leave it empty to emit every one, with or without a rating.",
-      options: ["1", "2", "3", "4", "5"],
-      optional: true,
+      propDefinition: [app, "minRating"],
+      description: "Only emit ratings of at least this many stars, e.g. \`4\`. Leave it empty to emit every one, with or without a rating.",
     }`);
     checks.push("(!this.minRating || this.getRating(item) >= Number(this.minRating))");
   }
 
-  const text = event.description.replace(/^Triggers when /, "");
+  const text = event.description.replace(/^Triggers when /, "").replace(/\.$/, "");
   const usesApp = props.length > 0;
   const summary = SUMMARIES[event.value];
   const code = `${usesApp ? "import app from \"../../privatus_analytics.app.mjs\";\n" : ""}import common from "../common/base.mjs";

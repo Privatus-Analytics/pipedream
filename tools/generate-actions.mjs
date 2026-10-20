@@ -156,6 +156,8 @@ action({
     f("stats_breakdown", "segment_id", { pd: "segmentId" }),
   ],
   fixedExpr: { from: "this.period === \"custom\" ? utils.toDate(this.from) : undefined", to: "this.period === \"custom\" ? utils.toDate(this.to) : undefined" },
+  platformImports: ["ConfigurationError"],
+  preCode: "if (this.dimension === \"prop\" && !String(this.propertyKey ?? \"\").trim()) {\n      throw new ConfigurationError(\"**Property Key** is required when **Report** is **Custom Event Property**\");\n    }",
   postCode: "const rows = (response.rows || []).map((row, index) => ({\n      rank: index + 1,\n      ...row,\n    }));",
   returns: "rows",
   summary: "`Successfully retrieved ${rows.length} row${rows.length === 1 ? \"\" : \"s\"}`",
@@ -178,7 +180,7 @@ action({
 action({
   slug: "get-live-visitors", name: "Get Live Visitors", op: "live_get", read: true,
   description: "Gets how many visitors are on a site right now (the last 30 minutes) and its latest activity.",
-  fields: [f("live_get", "site_id", { pd: "siteId", required: true }), f("live_get", "feed"), f("live_get", "limit", { default: 10 }), f("live_get", "filters", { pd: "filters" })],
+  fields: [f("live_get", "site_id", { pd: "siteId", required: true }), f("live_get", "feed"), f("live_get", "limit", { default: 10, min: 1, max: 100, description: "How many feed entries to return, from 1 to 100, e.g. `10`." }), f("live_get", "filters", { pd: "filters" })],
   summary: "`${response.live_visitors} visitor${response.live_visitors === 1 ? \"\" : \"s\"} on the site right now`",
 });
 
@@ -222,10 +224,11 @@ for (const [slug, name, op, scope] of [
       : "Adds a note to the charts of every site in the workspace, such as a release that touched them all.",
     fields: [
       ...(scope === "site" ? [f(op, "site_id", { pd: "siteId", required: true })] : []),
-      f(op, "title", { required: true, description: "Short title shown on the chart." }),
-      f(op, "date", { expr: "utils.toDate(this.date) ?? new Date().toISOString().slice(0, 10)", description: "The day the note is shown on, as `YYYY-MM-DD`. Defaults to today." }),
-      f(op, "end_date", { expr: "utils.toDate(this.endDate)", description: "For a note that covers several days, the last day, as `YYYY-MM-DD`." }),
-      f(op, "body"), f(op, "url", { label: "Link" }), f(op, "color"), f(op, "source"), f(op, "version"),
+      f(op, "title", { pd: "chartNoteTitle", required: true }),
+      f(op, "date", { pd: "chartNoteDate", expr: "utils.toDate(this.date)" }),
+      f(op, "end_date", { pd: "chartNoteEndDate", expr: "utils.toDate(this.endDate)" }),
+      f(op, "body", { pd: "chartNoteBody" }), f(op, "url", { pd: "chartNoteUrl" }), f(op, "color", { pd: "chartNoteColor" }),
+      f(op, "source", { pd: "chartNoteSource" }), f(op, "version", { pd: "chartNoteVersion" }),
     ],
     summary: "`Successfully created chart note '${response.title}'`",
   });
@@ -340,9 +343,9 @@ action({
   description: "Invites people to the workspace by email. Each gets an invitation link valid for 14 days.",
   fields: [
     f("invitations_create", "emails", { required: true, label: "Emails", description: "Up to 50 email addresses. Addresses that are already members are skipped." }),
-    f("invitations_create", "role", { options: ["admin", "editor", "analyst", "viewer", "billing"], default: "viewer" }),
+    f("invitations_create", "role", { options: ["admin", "editor", "analyst", "viewer", "billing"], default: "viewer", description: "The role of the invited people, e.g. `viewer`. The owner role cannot be invited." }),
     f("invitations_create", "all_sites", { default: true, description: "Whether they may open every site, including future ones. Turn it off to limit them to **Sites**." }),
-    { p: "siteIds", api: "site_ids", type: "list", label: "Sites", optional: true, description: "The sites they may open, as site IDs like `pa_7Q2K9XH3AB`. Only used when **All Sites** is off." },
+    { p: "siteIds", api: "site_ids", type: "list", pd: "siteIds", descOverride: "The sites they may open, as site IDs, e.g. `[\"pa_7Q2K9XH3AB\"]`. Use **Find Site** to get the site IDs. Only used when **All Sites** is off." },
   ],
   summary: "`Successfully invited ${(response || []).length || this.emails.length} people`",
 });
@@ -365,7 +368,7 @@ action({
   fixedParams: { status: "complete", per_page: 1 },
   postCode: "const audit = (response || [])[0] || null;",
   returns: "audit",
-  summary: "audit ? \"`Successfully retrieved the latest site audit`\" : \"`No finished site audit yet`\"",
+  summary: "audit ? \"Successfully retrieved the latest site audit\" : \"No finished site audit yet\"",
 });
 
 // -- Experiments
@@ -383,7 +386,7 @@ action({
 for (const [slug, name, op, text, done] of [
   ["start-experiment", "Start Experiment", "experiments_start", "Starts an A/B or split URL experiment.", "started"],
   ["pause-experiment", "Pause Experiment", "experiments_pause", "Pauses an experiment.", "paused"],
-  ["end-experiment", "End Experiment", "experiments_end", "Ends an experiment, with or without a winner.", "ended"],
+  ["end-experiment", "End Experiment", "experiments_end", "Ends an experiment. This action does not choose a winner.", "ended"],
 ]) {
   action({
     slug, name, op, description: text,
@@ -422,14 +425,18 @@ action({
     f("testimonials_update", "site_id", { pd: "siteId", required: true }),
     { p: "testimonialId", api: "id", in: "path", pd: "testimonialId", required: true },
     f("testimonials_update", "body", { label: "Text" }), f("testimonials_update", "title"),
-    f("testimonials_update", "rating", { options: ["1", "2", "3", "4", "5"], expr: "this.rating ? parseInt(this.rating, 10) : undefined" }),
-    f("testimonials_update", "highlight"), f("testimonials_update", "language"), f("testimonials_update", "received_at"),
+    f("testimonials_update", "rating", { options: ["1", "2", "3", "4", "5"], expr: "this.rating ? parseInt(this.rating, 10) : undefined", description: "The stars, 1 to 5, e.g. `4`. To remove the rating use **Clear Rating** instead. A change is kept in the history." }),
+    { p: "clearRating", api: "clear_rating", type: "boolean", virtual: true, label: "Clear Rating", optional: true, description: "Whether to remove the rating. Turn it on to send no rating at all. Do not use it together with **Rating**." },
+    f("testimonials_update", "highlight", { description: "An exact part of the words to highlight, e.g. `saved us hours every week`. To remove the highlight use **Clear Highlight** instead." }),
+    { p: "clearHighlight", api: "clear_highlight", type: "boolean", virtual: true, label: "Clear Highlight", optional: true, description: "Whether to remove the highlight. Do not use it together with **Highlight**." },
+    f("testimonials_update", "language"), f("testimonials_update", "received_at"),
     f("testimonials_update", "source_name"), f("testimonials_update", "source_url", { label: "Source URL" }),
-    f("testimonials_update", "properties", { description: "Custom property values to change, by key. An empty value clears one." }),
+    f("testimonials_update", "properties", { description: "Custom property values to change, by key, like `{\"plan\":\"pro\"}`. A key set to an empty value is cleared." }),
     f("testimonials_update", "add_tags", { description: "Tag names or IDs to add. A name that does not exist yet is created." }),
     f("testimonials_update", "remove_tags", { description: "Tag names or IDs to remove." }),
     f("testimonials_update", "edit_note"), f("testimonials_update", "permalink", { label: "Public Page" }),
   ],
+  nullFields: [["clearRating", "rating"], ["clearHighlight", "highlight"]],
   summary: "`Successfully updated testimonial ${this.testimonialId}`",
 });
 for (const [slug, name, op, text, done, fixed] of [
@@ -466,7 +473,7 @@ action({
     f("testimonials_list", "site_id", { pd: "siteId", required: true }),
     f("testimonials_list", "q", { label: "Search", description: "Words in the testimonial or the name or company of the person." }),
     f("testimonials_list", "status"),
-    { p: "minRating", api: "min_rating", type: "string", virtual: true, label: "Minimum Rating", options: ["1", "2", "3", "4", "5"], description: "Only testimonials with at least this many stars." },
+    { p: "minRating", api: "min_rating", type: "string", virtual: true, pd: "minRating" },
     f("testimonials_list", "kind"),
     f("testimonials_list", "tag_id", { pd: "testimonialTagIds" }),
     f("testimonials_list", "form_id", { pd: "testimonialFormIds" }),
@@ -519,6 +526,62 @@ action({
   summary: "response.added ? `Successfully added ${this.email} to the request` : `${this.email} was skipped`",
 });
 
+// -- Lookups for the IDs the other actions take
+action({
+  slug: "find-status-pages", name: "Find Status Pages", op: "status_pages_list", workspace: true, read: true, list: true,
+  description: "Lists the status pages of the workspace, or finds one by name or slug. Use it to get the status page ID for **Post Status Page Update**.",
+  fields: [f("status_pages_list", "query", { label: "Name or Slug", description: "Part of the name or slug of the status page, e.g. `acme`." })],
+  summary: "`Found ${items.length} status page${items.length === 1 ? \"\" : \"s\"}`",
+});
+action({
+  slug: "find-testimonial-requests", name: "Find Testimonial Requests", op: "testimonial_requests_list", read: true, list: true,
+  description: "Lists the testimonial requests of a site, or finds one by name or subject, with its status. Use it to get the request ID for **Ask for Testimonial**.",
+  fields: [
+    f("testimonial_requests_list", "site_id", { pd: "siteId", required: true }),
+    f("testimonial_requests_list", "q", { label: "Search", description: "Words in the name or the subject of the request, e.g. `Q4 customers`." }),
+    f("testimonial_requests_list", "status"),
+    f("testimonial_requests_list", "form_id", { pd: "testimonialFormId" }),
+  ],
+  summary: "`Found ${items.length} testimonial request${items.length === 1 ? \"\" : \"s\"}`",
+});
+action({
+  slug: "find-testimonial-forms", name: "Find Testimonial Forms", op: "testimonial_forms_list", read: true, list: true,
+  description: "Lists the testimonial forms of a site, or finds one by name or slug. Use it to get the form IDs for **Find Testimonials** and the testimonial sources.",
+  fields: [
+    f("testimonial_forms_list", "site_id", { pd: "siteId", required: true }),
+    f("testimonial_forms_list", "q", { label: "Search", description: "Part of the name or slug of the form, e.g. `customer-stories`." }),
+    f("testimonial_forms_list", "language"),
+  ],
+  summary: "`Found ${items.length} testimonial form${items.length === 1 ? \"\" : \"s\"}`",
+});
+action({
+  slug: "find-testimonial-tags", name: "Find Testimonial Tags", op: "testimonial_tags_list", read: true, list: true,
+  description: "Lists the testimonial tags of a site, or finds one by name. Use it to get the tag IDs for **Find Testimonials**.",
+  fields: [
+    f("testimonial_tags_list", "site_id", { pd: "siteId", required: true }),
+    f("testimonial_tags_list", "query", { label: "Name", description: "Part of the tag name, e.g. `onboarding`." }),
+    f("testimonial_tags_list", "sort"),
+  ],
+  summary: "`Found ${items.length} tag${items.length === 1 ? \"\" : \"s\"}`",
+});
+action({
+  slug: "find-testimonial-collections", name: "Find Testimonial Collections", op: "testimonial_collections_list", read: true, list: true,
+  description: "Lists the testimonial collections of a site, or finds one by name. Use it to get the collection IDs for **Create Testimonial**.",
+  fields: [
+    f("testimonial_collections_list", "site_id", { pd: "siteId", required: true }),
+    f("testimonial_collections_list", "query", { label: "Name", description: "Part of the collection name, e.g. `homepage`." }),
+    f("testimonial_collections_list", "kind"),
+    f("testimonial_collections_list", "sort"),
+  ],
+  summary: "`Found ${items.length} collection${items.length === 1 ? \"\" : \"s\"}`",
+});
+action({
+  slug: "find-segments", name: "Find Segments", op: "segments_list", read: true, list: true,
+  description: "Lists the saved segments of a site. Use it to get the segment ID for **Get Site Stats**, **Get Time Series**, **Get Top Values** and **Create Export**.",
+  fields: [f("segments_list", "site_id", { pd: "siteId", required: true })],
+  summary: "`Found ${items.length} segment${items.length === 1 ? \"\" : \"s\"}`",
+});
+
 // ---------- code generation ----------
 
 const q = (s) => JSON.stringify(s);
@@ -546,10 +609,19 @@ const propFor = (fd) => {
   if (fd.options) {
     parts.push(`options: ${JSON.stringify(fd.options.map((o) => (Array.isArray(o) ? { label: o[1], value: o[0] } : o)))}`);
   }
+  if (fd.min !== undefined) parts.push(`min: ${fd.min}`);
+  if (fd.max !== undefined) parts.push(`max: ${fd.max}`);
   if (fd.default !== undefined) parts.push(`default: ${JSON.stringify(type === "integer" || type === "boolean" ? fd.default : String(fd.default))}`);
   if (!fd.required) parts.push("optional: true");
   return `{ ${parts.join(", ")} }`;
 };
+
+// Prop definitions of the app file that are optional there.
+const APP_OPTIONAL = ["testimonialFormIds", "testimonialTagIds", "testimonialCollectionIds", "segmentId", "from", "to", "filters", "maxResults",
+  "minRating", "siteIds", "chartNoteDate", "chartNoteEndDate", "chartNoteBody", "chartNoteUrl", "chartNoteColor", "chartNoteSource", "chartNoteVersion"];
+// Prop definitions whose options come from the site chosen in the siteId prop.
+const SITE_DEPENDENT = ["testimonialId", "segmentId", "experimentId", "uptimeCheckId", "testimonialRequestId", "testimonialFormId",
+  "testimonialFormIds", "testimonialTagIds", "testimonialCollectionIds"];
 
 const generate = (def) => {
   const spc = spec[def.op];
@@ -558,8 +630,11 @@ const generate = (def) => {
   for (const fd of fields) {
     if (fd.pd) {
       // A propDefinition is optional in the app file only where the app file says so.
-      const needsOptional = !fd.required && !["testimonialFormIds", "testimonialTagIds", "testimonialCollectionIds", "segmentId", "from", "to", "filters", "maxResults"].includes(fd.pd);
-      propsOut.push(`${fd.p}: { propDefinition: [app, ${q(fd.pd)}]${needsOptional ? ", optional: true" : ""} }`);
+      const needsOptional = !fd.required && !APP_OPTIONAL.includes(fd.pd);
+      // An options loader that reads the site gets the value of the Site prop.
+      const mapper = SITE_DEPENDENT.includes(fd.pd) ? ", (c) => ({ siteId: c.siteId })" : "";
+      const desc = fd.descOverride ? `, description: ${q(fd.descOverride)}` : "";
+      propsOut.push(`${fd.p}: { propDefinition: [app, ${q(fd.pd)}${mapper}]${needsOptional ? ", optional: true" : ""}${desc} }`);
     } else {
       propsOut.push(`${fd.p}: ${propFor(fd)}`);
     }
@@ -567,13 +642,17 @@ const generate = (def) => {
   if (def.list) propsOut.push("maxResults: { propDefinition: [app, \"maxResults\"] }");
 
   // Request pieces
-  let pathTemplate = spc.path.replace(/\{(\w+)\}/g, (_m, name) => {
-    if (name === "workspace_id") return "${workspaceId}";
+  const inWorkspace = spc.path.startsWith("/workspaces/{workspace_id}");
+  let pathTemplate = spc.path.replace(/^\/workspaces\/\{workspace_id\}/, "").replace(/\{(\w+)\}/g, (_m, name) => {
     const fd = fields.find((x) => x.api === name);
     return `\${utils.segment(${valueOf(fd)})}`;
   });
+  // The path of the workspace of the token, built by the app file (it escapes the ID).
+  const pathExpr = inWorkspace
+    ? `await this.app.workspacePath({ $, path: \`${pathTemplate}\` })`
+    : `\`${pathTemplate}\``;
   const pathLines = [];
-  if (def.workspace || spc.path.includes("{workspace_id}")) pathLines.push("const workspaceId = await this.app.getWorkspaceId({ $ });");
+  if (def.preCode) pathLines.push(def.preCode);
 
   const inQuery = spc.method === "GET";
   const send = fields.filter((fd) => !fd.virtual && fd.in !== "path");
@@ -591,11 +670,19 @@ const generate = (def) => {
   const lines = [...pathLines];
   const compactCall = `utils.compact({\n${entries.map((e) => `          ${e},`).join("\n")}\n        })`;
 
+  let dataRef = compactCall;
+  if (def.nullFields) {
+    // A value that is cleared goes as null, which `compact` would drop.
+    lines.push(`const data = ${compactCall};`);
+    for (const [prop, api] of def.nullFields) lines.push(`if (this.${prop}) data.${api} = null;`);
+    dataRef = "data";
+  }
+
   let call;
   if (def.list) {
     call = `let items = await this.app.paginate({
       $,
-      path: \`${pathTemplate}\`,
+      path: ${pathExpr},
       params: ${compactCall},
       maxResults: ${def.postCode ? "Infinity" : "this.maxResults"},
     });`;
@@ -603,7 +690,7 @@ const generate = (def) => {
     call = `const response = await this.app.request({
       $,
       method: ${q(spc.method)},
-      path: \`${pathTemplate}\`,${entries.length ? `\n      ${holder}: ${compactCall},` : ""}
+      path: ${pathExpr},${entries.length ? `\n      ${holder}: ${dataRef},` : ""}
     });`;
   }
   lines.push(call);
@@ -617,12 +704,13 @@ const generate = (def) => {
 
   const annotations = {
     destructiveHint: false,
-    openWorldHint: Boolean(def.openWorld),
+    openWorldHint: true,
     readOnlyHint: Boolean(def.read),
   };
   const usesUtils = lines.join("\n").includes("utils.") || propsOut.join("").includes("utils.");
 
-  return `import app from "../../privatus_analytics.app.mjs";
+  const platform = def.platformImports ? `import { ${def.platformImports.join(", ")} } from "@pipedream/platform";\n` : "";
+  return `${platform}import app from "../../privatus_analytics.app.mjs";
 ${usesUtils ? "import utils from \"../../common/utils.mjs\";\n" : ""}
 export default {
   key: ${q(`privatus_analytics-${def.slug}`)},
@@ -630,6 +718,7 @@ export default {
   description: ${q(`${def.description} [See the documentation](${DOCS})`)},
   version: "0.0.1",
   type: "action",
+  ai: "optimized",
   annotations: ${JSON.stringify(annotations)},
   props: {
     app,
@@ -653,7 +742,6 @@ for (const def of ACTIONS) {
 const customDir = path.join(outDir, "send-custom-api-request");
 fs.mkdirSync(customDir, { recursive: true });
 fs.writeFileSync(path.join(customDir, "send-custom-api-request.mjs"), `import app from "../../privatus_analytics.app.mjs";
-import utils from "../../common/utils.mjs";
 
 export default {
   key: "privatus_analytics-send-custom-api-request",
@@ -661,13 +749,14 @@ export default {
   description: "Calls any endpoint of the Privatus Analytics API with the connected account, for what the other actions do not cover. Only paths on privatusanalytics.com are accepted. [See the documentation](${DOCS})",
   version: "0.0.1",
   type: "action",
-  annotations: { destructiveHint: false, openWorldHint: false, readOnlyHint: false },
+  ai: "optimized",
+  annotations: { destructiveHint: true, openWorldHint: true, readOnlyHint: false },
   props: {
     app,
     method: {
       type: "string",
       label: "HTTP Method",
-      description: "The HTTP method. Nothing here can delete data, so \`DELETE\` is not offered.",
+      description: "The HTTP method, e.g. \`GET\`. \`DELETE\` is not offered. \`PATCH\` and \`PUT\` can overwrite existing data.",
       options: ["GET", "PATCH", "POST", "PUT"],
       default: "GET",
     },
@@ -679,25 +768,23 @@ export default {
     query: {
       type: "object",
       label: "Query Parameters",
-      description: "Query parameters, such as the name \`period\` with the value \`30d\`.",
+      description: "Query parameters as an object, e.g. \`{\\"period\\":\\"30d\\"}\`.",
       optional: true,
     },
     body: {
       type: "object",
       label: "Body",
-      description: "The JSON body, for \`POST\`, \`PATCH\` and \`PUT\`.",
+      description: "The JSON body for \`POST\`, \`PATCH\` and \`PUT\`, e.g. \`{\\"name\\":\\"Signed up\\"}\`.",
       optional: true,
     },
   },
   async run({ $ }) {
-    const [base, existing] = utils.apiPath(this.path).split("?");
-    const extra = this.query ? utils.queryString(this.query) : "";
-    const search = [existing, extra].filter(Boolean).join("&");
-    const response = await this.app._makeRequest({
+    const response = await this.app.sendCustomRequest({
       $,
       method: this.method,
-      path: search ? base + "?" + search : base,
-      data: this.method === "GET" ? undefined : this.body,
+      path: this.path,
+      query: this.query,
+      data: this.body,
     });
     $.export("$summary", "Successfully sent the " + this.method + " request");
     return response;
