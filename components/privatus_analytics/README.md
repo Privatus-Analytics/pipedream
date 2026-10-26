@@ -23,7 +23,7 @@ A token belongs to exactly one workspace, so there is no workspace to choose. Co
 
 There is one instant source for each of the 25 webhook events: alert triggered or resolved, goal alert triggered, usage threshold reached, uptime check down or recovered, new site, site deleted, new member, export ready, analytics import completed or failed, site audit completed, experiment ended, new testimonial, testimonial approved, rejected, restored, moved to trash or deleted, testimonial form submitted, testimonial request sent or finished, testimonial import finished and new reviews found by sync.
 
-Deploying a source creates a webhook in your workspace. Deactivating or deleting the source deletes it. The signing secret of the webhook is kept in the database of the source, and every delivery must carry a valid `Privatus-Signature` header at most five minutes old, or it is answered with `401` and nothing is emitted.
+Deploying a source creates a webhook in your workspace. Deactivating or deleting the source deletes it. The signing secret of the webhook is kept in the database of the source, and every delivery must have a valid `Privatus-Signature` header at most five minutes old, or it gets a `401` response and nothing is emitted.
 
 Most sources have an optional **Site** filter. Alert sources can also filter by alert rule, form sources by form, request sources by request, and testimonial sources by minimum rating.
 
